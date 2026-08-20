@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스크린 · KSC 2026 Q&A</title>
+<link rel="stylesheet" href="style.css?v=12">
+<script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
+</head>
+<body class="screen">
+<div class="s-wrap">
+  <header class="s-head">
+    <div>
+      <div class="s-event" id="eventTitle"></div>
+      <div class="s-round" id="sRound">불러오는 중…</div>
+    </div>
+    <div class="s-qr">
+      <div id="qrbox"></div>
+      <div class="s-url" id="urlText"></div>
+    </div>
+  </header>
+  <main id="stage"></main>
+</div>
+<script src="config.js?v=5"></script>
+<script src="app.js?v=2"></script>
+<script>
+mountDemoBadge();
+document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
+
+// 스킨 (?skin=) — 구조는 동일, 색만 교체
+const SKINS = {
+  bp:       { qr: '#131F38' },
+  midnight: { qr: '#101A2E', vars: {'--cream':'#111A2C','--cream-deep':'#0C1424','--panel':'rgba(255,255,255,.07)','--ink':'#E9E6DC','--ink-deep':'#F4F1E8','--muted':'#97A0B5','--bronze':'#C9AE7C','--bronze-soft':'#A98F63','--line':'rgba(233,230,220,.18)','--line-strong':'rgba(233,230,220,.45)','--wash1':'rgba(255,255,255,.05)','--wash2':'rgba(201,174,124,.10)','--wash3':'rgba(120,140,190,.10)'} },
+  ivory:    { qr: '#1B2540', vars: {'--cream':'#F4F2EA','--cream-deep':'#ECE8DC','--panel':'rgba(255,255,255,.68)','--ink':'#26324E','--ink-deep':'#1B2540','--muted':'#83857B','--bronze':'#2F4A86','--bronze-soft':'#6C82B5','--line':'rgba(30,42,72,.18)','--line-strong':'rgba(30,42,72,.42)','--wash1':'rgba(255,255,255,.9)','--wash2':'rgba(212,202,172,.35)','--wash3':'rgba(212,202,172,.25)'} },
+  prussian: { qr: '#14315E', vars: {'--cream':'#1C3C71','--cream-deep':'#152F5B','--panel':'rgba(255,255,255,.08)','--ink':'#EDF2FA','--ink-deep':'#FFFFFF','--muted':'#9FB4D6','--bronze':'#D9C289','--bronze-soft':'#B7A26E','--line':'rgba(237,242,250,.2)','--line-strong':'rgba(237,242,250,.5)','--wash1':'rgba(255,255,255,.10)','--wash2':'rgba(120,150,200,.18)','--wash3':'rgba(120,150,200,.14)'} },
+};
+const skinKey = new URLSearchParams(location.search).get('skin') || 'bp';
+const SKIN = SKINS[skinKey] || SKINS.bp;
+if (SKIN.vars) Object.keys(SKIN.vars).forEach(function (k) { document.documentElement.style.setProperty(k, SKIN.vars[k]); });
+
+const baseUrl = location.origin + location.pathname.replace(/screen\.html$/, '');
+document.getElementById('urlText').textContent = baseUrl.replace(/^https?:\/\//, '');
+
+// QR 라이브러리(CDN) — 로드 실패 시 주소 텍스트만 표시
+(function () {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@master/qrcode.min.js';
+  s.onload = function () {
+    new QRCode(document.getElementById('qrbox'), {
+      text: baseUrl, width: 172, height: 172,
+      colorDark: SKIN.qr || '#14418F', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+  };
+  s.onerror = function () { document.getElementById('qrbox').style.display = 'none'; };
+  document.head.appendChild(s);
+})();
+
+let state = null, key = '';
+const prevIds = new Set();
+
+function qno(i) { return 'Q.' + String(i + 1).padStart(3, '0'); }
+
+function stageHtml() {
+  const r = state.round, qs = state.questions || [];
+  if (!r) {
+    const w = state.winners || [];
+    return '<div class="s-center"><div class="s-cross">+</div>'
+      + '<div class="s-big">QR을 스캔해 접속하세요</div>'
+      + '<div class="s-sub">SCAN TO ASK — 라운드 시작 대기 중</div>'
+      + (w.length ? '<div class="s-winners-strip">' + w.map(function (x) { return '<div class="s-chip">★ ' + esc(x.content) + '</div>'; }).join('') + '</div>' : '')
+      + '</div>';
+  }
+  if (r.status === 'open') {
+    if (!qs.length) {
+      return '<div class="s-center"><div class="s-cross">+</div><div class="s-big">첫 질문을 등록해 주세요</div><div class="s-sub">SCAN TO ASK — QR 스캔 후 바로 등록</div></div>';
+    }
+    const shown = qs.slice(-8);
+    const offset = qs.length - shown.length;
+    return '<div class="s-count">REGISTERED <b>' + String(qs.length).padStart(3, '0') + '</b>'
+      + (offset ? ' · 최근 8개 표시' : '') + '</div>'
+      + '<ol class="t-list">'
+      + shown.map(function (q, i) {
+        const idx = offset + i;
+        return '<li class="t-item' + (prevIds.has(q.id) ? '' : ' fresh') + (q.selected ? ' sel' : '') + '">'
+          + '<span class="t-no">' + qno(idx) + '</span>'
+          + '<p class="t-q">' + esc(q.content) + '</p>'
+          + '<span class="t-by">' + esc(q.author || '익명') + '</span>'
+          + '</li>';
+      }).join('')
+      + '</ol>';
+  }
+  const winners = qs.filter(function (q) { return q.selected; });
+  if (!winners.length) {
+    return '<div class="s-center"><div class="s-cross">+</div><div class="s-big">우수 질문 선정 중</div><div class="s-sub">REVIEW IN PROGRESS<span class="dots"></span></div></div>';
+  }
+  const figs = ['FIG.A', 'FIG.B'];
+  return '<div class="t-winhead">— SELECTED QUESTIONS —</div>'
+    + '<div class="t-figs">'
+    + winners.map(function (q, i) {
+      return '<figure class="t-fig"><figcaption>' + (figs[i] || 'FIG.' + (i + 1)) + '</figcaption>'
+        + '<p>' + esc(q.content) + '</p>'
+        + '<cite>— ' + esc(q.author || '익명') + '</cite>'
+        + '<span class="t-stamp">SELECTED ✓</span></figure>';
+    }).join('')
+    + '</div>';
+}
+
+function render() {
+  const r = state.round;
+  document.getElementById('sRound').textContent = r ? r.title : '곧 시작합니다';
+  const k = JSON.stringify(state);
+  if (k === key) return;
+  key = k;
+  document.getElementById('stage').innerHTML = stageHtml();
+  (state.questions || []).forEach(function (q) { prevIds.add(q.id); });
+}
+
+startPolling(async function () { state = await store.getState(); render(); }, 2000);
+</script>
+</body>
+</html>

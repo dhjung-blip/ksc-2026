@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>질문 등록 · KSC 2026 Q&A</title>
+<link rel="stylesheet" href="style.css?v=12">
+<script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="page"><div class="event-title" id="eventTitle"></div></header>
+  <div id="app"><div class="card center muted">불러오는 중…</div></div>
+</div>
+<script src="config.js?v=5"></script>
+<script src="app.js?v=2"></script>
+<script>
+mountDemoBadge();
+document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
+
+const app = document.getElementById('app');
+const nameKey = 'qws-name', mineKey = 'qws-mine';
+let state = null, viewKey = '';
+
+function myIds(rid) {
+  try { return (JSON.parse(localStorage.getItem(mineKey)) || {})[rid] || []; } catch (e) { return []; }
+}
+function addMine(rid, qid) {
+  let m = {};
+  try { m = JSON.parse(localStorage.getItem(mineKey)) || {}; } catch (e) {}
+  (m[rid] = m[rid] || []).push(qid);
+  localStorage.setItem(mineKey, JSON.stringify(m));
+}
+
+function qCard(q, rid) {
+  const mine = myIds(rid).indexOf(q.id) >= 0;
+  return '<div class="qcard' + (q.selected ? ' win' : '') + (mine ? ' mine' : '') + '">'
+    + (q.selected ? '<div class="win-tag">🏆 우수 질문</div>' : '')
+    + '<div class="q-content">' + esc(q.content) + '</div>'
+    + '<div class="q-meta">' + esc(q.author || '익명') + (mine ? ' · 내 질문' : '') + '</div>'
+    + '</div>';
+}
+
+function listBody(r) {
+  const qs = state.questions || [];
+  if (r.status === 'open') {
+    if (!qs.length) return '<div class="card center muted">아직 등록된 질문이 없습니다.<br>첫 질문을 남겨보세요!</div>';
+    return '<div class="list-head">등록된 질문 <b>' + qs.length + '</b>개</div>'
+      + qs.slice().reverse().map(function (q) { return qCard(q, r.id); }).join('');
+  }
+  const winners = qs.filter(function (q) { return q.selected; });
+  if (!winners.length) {
+    return '<div class="card center"><div class="big-emoji">🤔</div><h2>우수 질문을 선정하고 있습니다</h2><p class="muted">잠시만 기다려 주세요.</p></div>';
+  }
+  const rest = qs.filter(function (q) { return !q.selected; });
+  return '<h2 class="section-title">🏆 우수 질문</h2>'
+    + winners.map(function (q) { return qCard(q, r.id); }).join('')
+    + (rest.length
+      ? '<details class="rest"><summary>전체 질문 ' + qs.length + '개 보기</summary>'
+        + rest.slice().reverse().map(function (q) { return qCard(q, r.id); }).join('') + '</details>'
+      : '');
+}
+
+function fullRender(r) {
+  if (!r) {
+    app.innerHTML = '<div class="card center"><div class="big-emoji">⏳</div><h2>아직 시작 전입니다</h2><p class="muted">진행자가 라운드를 시작하면<br>이 화면이 자동으로 바뀝니다.</p></div>';
+    return;
+  }
+  if (r.status === 'open') {
+    app.innerHTML =
+      '<div class="round-head"><h1>' + esc(r.title) + '</h1></div>'
+      + '<div class="card">'
+      + '<label>이름 <span class="muted">(선택)</span></label>'
+      + '<input id="author" maxlength="40" placeholder="익명" value="' + esc(localStorage.getItem(nameKey) || '') + '">'
+      + '<label>질문</label>'
+      + '<textarea id="content" maxlength="500" rows="3" placeholder="질문을 입력하세요"></textarea>'
+      + '<button class="btn btn-primary btn-block" id="submitBtn">질문 등록</button>'
+      + '</div>'
+      + '<div id="qlist">' + listBody(r) + '</div>';
+    document.getElementById('submitBtn').addEventListener('click', submit);
+  } else {
+    app.innerHTML =
+      '<div class="round-head"><h1>' + esc(r.title) + '</h1></div>'
+      + '<div id="qlist">' + listBody(r) + '</div>';
+  }
+}
+
+function render() {
+  const r = state && state.round;
+  const key = r ? (r.id + ':' + r.status) : 'none';
+  if (key !== viewKey) { viewKey = key; fullRender(r); return; }
+  if (r) {
+    const el = document.getElementById('qlist');
+    if (el && el.innerHTML !== listBody(r)) el.innerHTML = listBody(r);
+  }
+}
+
+async function submit() {
+  const author = document.getElementById('author').value.trim();
+  const content = document.getElementById('content').value.trim();
+  if (!content) { toast('질문 내용을 입력해 주세요.', true); return; }
+  localStorage.setItem(nameKey, author);
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = '등록 중…';
+  try {
+    const q = await store.submitQuestion(state.round.id, author || '익명', content);
+    if (q && q.id != null) addMine(state.round.id, q.id);
+    document.getElementById('content').value = '';
+    toast('질문이 등록되었습니다 ✅');
+    await refresh();
+  } catch (e) {
+    toast(e.message || '등록에 실패했습니다.', true);
+  }
+  btn.disabled = false; btn.textContent = '질문 등록';
+}
+
+async function refresh() { state = await store.getState(); render(); }
+startPolling(refresh);
+</script>
+</body>
+</html>
