@@ -156,6 +156,8 @@ function esc(s) {
 function toast(msg, isErr) {
   const t = document.createElement('div');
   t.className = 'toast' + (isErr ? ' err' : '');
+  t.setAttribute('role', isErr ? 'alert' : 'status');
+  t.setAttribute('aria-live', isErr ? 'assertive' : 'polite');
   t.textContent = msg;
   document.body.appendChild(t);
   setTimeout(function () { t.remove(); }, 2600);

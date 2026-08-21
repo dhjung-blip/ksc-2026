@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap');
 :root{
   --cream:#EDF1F7; --cream-deep:#E2E8F2; --panel:rgba(255,255,255,.55);
-  --ink:#23304A; --ink-deep:#131F38; --muted:#74819C;
+  --ink:#23304A; --ink-deep:#131F38; --muted:#5A6880;
   --bronze:#48659F; --bronze-soft:#7E97C7;
   --line:rgba(35,48,74,.16); --line-strong:rgba(35,48,74,.4);
   --danger:#A4432E;
@@ -132,3 +132,12 @@ main#stage{flex:1;overflow:hidden;margin-top:22px}
 .s-speaker{font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:.2em;color:var(--bronze);margin-top:9px}
 .s-speaker:empty{display:none}
 .t-sp{display:block;font-family:var(--serif);font-size:13.5px;font-weight:600;letter-spacing:.16em;color:var(--bronze);margin-top:8px}
+
+/* ---------- 접근성 보강 ---------- */
+@media (pointer:coarse){
+  .btn.small{min-height:44px;padding:11px 16px}
+  .back-link{padding:12px 14px 12px 0}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+}

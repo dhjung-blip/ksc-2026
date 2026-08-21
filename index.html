@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>질문 등록 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="stylesheet" href="style.css?v=16">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body>
@@ -13,7 +13,7 @@
   <div id="app"><div class="card center muted">불러오는 중…</div></div>
 </div>
 <script src="config.js?v=5"></script>
-<script src="app.js?v=6"></script>
+<script src="app.js?v=7"></script>
 <script>
 mountDemoBadge();
 document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
@@ -90,9 +90,9 @@ function sessionHtml(s) {
   if (s.status === 'open') {
     h += '<div class="card">'
       + '<label>이름 <span class="muted">(선택)</span></label>'
-      + '<input id="author" maxlength="40" placeholder="익명" value="' + esc(localStorage.getItem(nameKey) || '') + '">'
+      + '<input id="author" maxlength="40" autocomplete="name" placeholder="익명" value="' + esc(localStorage.getItem(nameKey) || '') + '">'
       + '<label>전화번호 뒤 4자리</label>'
-      + '<input id="phone4" inputmode="numeric" maxlength="4" placeholder="0000" value="' + esc(localStorage.getItem(phoneKey) || '') + '">'
+      + '<input id="phone4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="4" placeholder="0000" value="' + esc(localStorage.getItem(phoneKey) || '') + '">'
       + '<label>질문</label>'
       + '<textarea id="content" maxlength="500" rows="3" placeholder="질문을 입력하세요"></textarea>'
       + '<button class="btn btn-primary btn-block" id="submitBtn">질문 등록</button>'
