@@ -140,6 +140,13 @@ function startPolling(fn, ms) {
   return function () { stopped = true; };
 }
 
+// "제목 -연사 직함-" 형태에서 제목과 연사를 분리
+function splitTitle(t) {
+  const m = /^(.*?)\s*-\s*([^-]{1,40}?)\s*-\s*$/.exec(t || '');
+  if (m) return { title: m[1], speaker: m[2] };
+  return { title: t || '', speaker: '' };
+}
+
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];

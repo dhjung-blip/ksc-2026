@@ -126,3 +126,9 @@ main#stage{flex:1;overflow:hidden;margin-top:22px}
 .s-nav a:hover{color:var(--ink)}
 .t-item[data-s]{cursor:pointer;transition:border-color .15s ease}
 .t-item[data-s]:hover{border-color:var(--bronze-soft)}
+
+/* ---------- 연사 바이라인 ---------- */
+.speaker{font-family:var(--serif);font-size:13px;font-weight:600;letter-spacing:.16em;color:var(--bronze);margin-top:7px}
+.s-speaker{font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:.2em;color:var(--bronze);margin-top:9px}
+.s-speaker:empty{display:none}
+.t-sp{display:block;font-family:var(--serif);font-size:13.5px;font-weight:600;letter-spacing:.16em;color:var(--bronze);margin-top:8px}

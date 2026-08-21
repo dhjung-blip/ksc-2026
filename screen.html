@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스크린 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=14">
+<link rel="stylesheet" href="style.css?v=15">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="screen">
@@ -13,6 +13,7 @@
     <div>
       <div class="s-event" id="eventTitle"></div>
       <div class="s-round" id="sRound">불러오는 중…</div>
+      <div class="s-speaker" id="sSpeaker"></div>
     </div>
     <div class="s-qr">
       <div id="qrbox"></div>
@@ -22,7 +23,7 @@
   <main id="stage"></main>
 </div>
 <script src="config.js?v=5"></script>
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 <script>
 mountDemoBadge();
 document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
@@ -118,9 +119,11 @@ function overviewHtml() {
     + sessions().map(function (s, i) {
       const qs = s.questions || [];
       const sel = qs.filter(function (q) { return q.selected; }).length;
+      const p = splitTitle(s.title);
       return '<li class="t-item' + (sel ? ' sel' : '') + '" data-s="' + (i + 1) + '">'
         + '<span class="t-no">P.' + String(i + 1).padStart(2, '0') + (s.status === 'open' ? '' : ' · CLOSED') + '</span>'
-        + '<p class="t-q">' + esc(s.title) + '</p>'
+        + '<p class="t-q">' + esc(p.title) + '</p>'
+        + (p.speaker ? '<span class="t-sp">' + esc(p.speaker) + '</span>' : '')
         + '<span class="t-by">질문 ' + qs.length + '개' + (sel ? ' · ★ 우수 질문 발표' : '') + '</span>'
         + '</li>';
     }).join('')
@@ -140,8 +143,10 @@ function stageHtml() {
 function render() {
   const s = sParam >= 1 ? sessions()[sParam - 1] : null;
   const ev = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
+  const p = s ? splitTitle(s.title) : null;
   document.getElementById('sRound').textContent =
-    s ? s.title : (sessions().length ? ev : '곧 시작합니다');
+    p ? p.title : (sessions().length ? ev : '곧 시작합니다');
+  document.getElementById('sSpeaker').textContent = p && p.speaker ? p.speaker : '';
   document.getElementById('eventTitle').textContent = s ? ev : '';
   const k = sParam + '|' + JSON.stringify(state);
   if (k === key) return;
