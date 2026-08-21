@@ -79,7 +79,7 @@ function singleHtml(s) {
   const qs = s.questions || [];
   if (s.status === 'open') {
     if (!qs.length) {
-      return nav + '<div class="s-center"><div class="s-cross">+</div><div class="s-big">첫 질문을 등록해 주세요</div><div class="s-sub">SCAN TO ASK — QR 스캔 후 프로그램 선택</div></div>';
+      return nav + '<div class="s-center"><div class="s-big">첫 질문을 등록해 주세요</div><div class="s-sub">SCAN TO ASK — QR 스캔 후 프로그램 선택</div></div>';
     }
     const shown = qs.slice(-8);
     const offset = qs.length - shown.length;
@@ -98,7 +98,7 @@ function singleHtml(s) {
   }
   const winners = qs.filter(function (q) { return q.selected; });
   if (!winners.length) {
-    return nav + '<div class="s-center"><div class="s-cross">+</div><div class="s-big">우수 질문 선정 중</div><div class="s-sub">REVIEW IN PROGRESS<span class="dots"></span></div></div>';
+    return nav + '<div class="s-center"><div class="s-big">우수 질문 선정 중</div><div class="s-sub">REVIEW IN PROGRESS<span class="dots"></span></div></div>';
   }
   const figs = ['FIG.A', 'FIG.B'];
   return nav + '<div class="t-winhead">— SELECTED QUESTIONS —</div>'
@@ -129,7 +129,7 @@ function overviewHtml() {
 
 function stageHtml() {
   if (!sessions().length) {
-    return '<div class="s-center"><div class="s-cross">+</div>'
+    return '<div class="s-center">'
       + '<div class="s-big">QR을 스캔해 접속하세요</div>'
       + '<div class="s-sub">SCAN TO ASK — 준비 중</div></div>';
   }

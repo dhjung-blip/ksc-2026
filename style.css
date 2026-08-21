@@ -107,7 +107,6 @@ main#stage{flex:1;overflow:hidden;margin-top:22px}
 .s-center{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px}
 .s-big{font-family:var(--serif);font-size:40px;font-weight:600;letter-spacing:.01em;color:var(--ink-deep)}
 .s-sub{font-size:15px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase}
-.s-cross{font-family:var(--serif);font-size:26px;color:var(--bronze);margin-bottom:2px}
 .s-winners-strip{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px;max-width:1000px}
 .s-chip{background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:9px 18px;font-family:var(--serif);font-size:14px;color:var(--ink)}
 .dots::after{content:'…';animation:dots 1.5s steps(4) infinite}
