@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스크린 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="screen">
@@ -22,7 +22,7 @@
   <main id="stage"></main>
 </div>
 <script src="config.js?v=5"></script>
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 <script>
 mountDemoBadge();
 document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
@@ -63,16 +63,30 @@ const sParam = Number(new URLSearchParams(location.search).get('s')) || 0;
 function sessions() { return (state && state.sessions) || []; }
 function pad3(n) { return String(n).padStart(3, '0'); }
 function qno(i) { return 'Q.' + pad3(i + 1); }
+function urlFor(sNum) {
+  const p = new URLSearchParams(location.search);
+  if (sNum) p.set('s', sNum); else p.delete('s');
+  p.delete('r');
+  const q = p.toString();
+  return location.pathname + (q ? '?' + q : '');
+}
+function navHtml() {
+  const total = sessions().length;
+  const next = sParam >= total ? 1 : sParam + 1;
+  return '<div class="s-nav"><a href="' + urlFor(0) + '">‹ 전체 프로그램</a>'
+    + '<a href="' + urlFor(next) + '">다음 프로그램 ›</a></div>';
+}
 
 function singleHtml(s) {
+  const nav = navHtml();
   const qs = s.questions || [];
   if (s.status === 'open') {
     if (!qs.length) {
-      return '<div class="s-center"><div class="s-cross">+</div><div class="s-big">첫 질문을 등록해 주세요</div><div class="s-sub">SCAN TO ASK — QR 스캔 후 세션 선택</div></div>';
+      return nav + '<div class="s-center"><div class="s-cross">+</div><div class="s-big">첫 질문을 등록해 주세요</div><div class="s-sub">SCAN TO ASK — QR 스캔 후 프로그램 선택</div></div>';
     }
     const shown = qs.slice(-8);
     const offset = qs.length - shown.length;
-    return '<div class="s-count">REGISTERED <b>' + pad3(qs.length) + '</b>'
+    return nav + '<div class="s-count">REGISTERED <b>' + pad3(qs.length) + '</b>'
       + (offset ? ' · 최근 8개 표시' : '') + '</div>'
       + '<ol class="t-list">'
       + shown.map(function (q, i) {
@@ -87,10 +101,10 @@ function singleHtml(s) {
   }
   const winners = qs.filter(function (q) { return q.selected; });
   if (!winners.length) {
-    return '<div class="s-center"><div class="s-cross">+</div><div class="s-big">우수 질문 선정 중</div><div class="s-sub">REVIEW IN PROGRESS<span class="dots"></span></div></div>';
+    return nav + '<div class="s-center"><div class="s-cross">+</div><div class="s-big">우수 질문 선정 중</div><div class="s-sub">REVIEW IN PROGRESS<span class="dots"></span></div></div>';
   }
   const figs = ['FIG.A', 'FIG.B'];
-  return '<div class="t-winhead">— SELECTED QUESTIONS —</div>'
+  return nav + '<div class="t-winhead">— SELECTED QUESTIONS —</div>'
     + '<div class="t-figs">'
     + winners.map(function (q, i) {
       return '<figure class="t-fig"><figcaption>' + (figs[i] || 'FIG.' + (i + 1)) + '</figcaption>'
@@ -102,13 +116,13 @@ function singleHtml(s) {
 }
 
 function overviewHtml() {
-  return '<div class="s-count">ALL SESSIONS <b>' + pad3(sessions().length) + '</b></div>'
+  return '<div class="s-count">ALL PROGRAMS <b>' + pad3(sessions().length) + '</b> · 클릭하면 해당 프로그램 보드로 이동</div>'
     + '<ol class="t-list">'
     + sessions().map(function (s, i) {
       const qs = s.questions || [];
       const sel = qs.filter(function (q) { return q.selected; }).length;
-      return '<li class="t-item' + (sel ? ' sel' : '') + '">'
-        + '<span class="t-no">S.' + String(i + 1).padStart(2, '0') + (s.status === 'open' ? '' : ' · CLOSED') + '</span>'
+      return '<li class="t-item' + (sel ? ' sel' : '') + '" data-s="' + (i + 1) + '">'
+        + '<span class="t-no">P.' + String(i + 1).padStart(2, '0') + (s.status === 'open' ? '' : ' · CLOSED') + '</span>'
         + '<p class="t-q">' + esc(s.title) + '</p>'
         + '<span class="t-by">질문 ' + qs.length + '개' + (sel ? ' · ★ 우수 질문 발표' : '') + '</span>'
         + '</li>';
@@ -129,13 +143,18 @@ function stageHtml() {
 function render() {
   const s = sParam >= 1 ? sessions()[sParam - 1] : null;
   document.getElementById('sRound').textContent =
-    s ? s.title : (sessions().length ? '전체 세션 현황' : '곧 시작합니다');
+    s ? s.title : (sessions().length ? '전체 프로그램' : '곧 시작합니다');
   const k = sParam + '|' + JSON.stringify(state);
   if (k === key) return;
   key = k;
   document.getElementById('stage').innerHTML = stageHtml();
   sessions().forEach(function (ss) { (ss.questions || []).forEach(function (q) { prevIds.add(q.id); }); });
 }
+
+document.getElementById('stage').addEventListener('click', function (e) {
+  const item = e.target.closest('.t-item[data-s]');
+  if (item) location.href = urlFor(Number(item.dataset.s));
+});
 
 startPolling(async function () { state = await store.getState(); render(); }, 2000);
 </script>

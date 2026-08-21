@@ -120,3 +120,10 @@ main#stage{flex:1;overflow:hidden;margin-top:22px}
 .back-link{display:inline-block;margin:4px 0 2px;text-decoration:none;color:var(--muted)}
 .back-link:hover{color:var(--ink)}
 .sess-row{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+
+/* ---------- 스크린 내비게이션 ---------- */
+.s-nav{display:flex;justify-content:space-between;align-items:center;margin:0 0 14px}
+.s-nav a{font-size:14px;letter-spacing:.08em;color:var(--muted);text-decoration:none}
+.s-nav a:hover{color:var(--ink)}
+.t-item[data-s]{cursor:pointer;transition:border-color .15s ease}
+.t-item[data-s]:hover{border-color:var(--bronze-soft)}

@@ -29,11 +29,12 @@ async function rpc(fn, args) {
 
 const SupabaseStore = {
   getState: () => rpc('get_state'),
-  async submitQuestion(roundId, author, content) {
+  getStateAdmin: (pass) => rpc('get_state_admin', { pass: pass }),
+  async submitQuestion(roundId, author, content, phone4) {
     const res = await fetch(CFG.SUPABASE_URL + '/rest/v1/questions', {
       method: 'POST',
       headers: sbHeaders({ Prefer: 'return=representation' }),
-      body: JSON.stringify({ round_id: roundId, author: author, content: content }),
+      body: JSON.stringify({ round_id: roundId, author: author, content: content, phone4: phone4 || '' }),
     });
     const text = await res.text();
     if (!res.ok) throw new Error('등록에 실패했습니다. 질문 접수가 마감됐을 수 있습니다.');
@@ -69,14 +70,23 @@ const LocalStore = {
   async getState() {
     const d = demoRead();
     return { sessions: d.sessions.map(function (s, i) {
+      return { id: s.id, title: s.title, status: s.status, round_no: i + 1,
+        questions: (s.questions || []).map(function (q) {
+          const c = Object.assign({}, q); delete c.phone4; return c;
+        }) };
+    }) };
+  },
+  async getStateAdmin() {
+    const d = demoRead();
+    return { sessions: d.sessions.map(function (s, i) {
       return { id: s.id, title: s.title, status: s.status, round_no: i + 1, questions: s.questions || [] };
     }) };
   },
-  async submitQuestion(sessionId, author, content) {
+  async submitQuestion(sessionId, author, content, phone4) {
     const d = demoRead();
     const s = demoFind(d, sessionId);
-    if (!s || s.status !== 'open') throw new Error('질문 접수가 마감된 세션입니다.');
-    const q = { id: d.seq++, round_id: sessionId, author: author, content: content, selected: false, created_at: new Date().toISOString() };
+    if (!s || s.status !== 'open') throw new Error('질문 접수가 마감된 프로그램입니다.');
+    const q = { id: d.seq++, round_id: sessionId, author: author, content: content, phone4: phone4 || '', selected: false, created_at: new Date().toISOString() };
     s.questions.push(q); demoWrite(d);
     return q;
   },

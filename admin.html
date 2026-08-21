@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>진행자 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="admin">
@@ -24,15 +24,15 @@
 
   <div id="main" style="display:none">
     <div class="card">
-      <h2>세션 관리</h2>
-      <p class="muted small">세션별로 질문 접수를 열고 닫고, 질문마다 ⭐ 선정(세션당 최대 2개)·삭제할 수 있습니다.
-      빔프로젝터는 <b>screen.html?s=세션번호</b>로 열면 해당 세션 보드가, 번호 없이 열면 전체 현황판이 표시됩니다.</p>
+      <h2>프로그램 관리</h2>
+      <p class="muted small">프로그램별로 질문 접수를 열고 닫고, 질문마다 ⭐ 선정(프로그램당 최대 2개)·삭제할 수 있습니다. 질문 옆 숫자 4자리는 참가자 전화번호 뒷자리(본인 확인용)입니다.
+      빔프로젝터는 <b>screen.html?s=세션번호</b>로 열면 해당 프로그램 보드가, 번호 없이 열면 전체 현황판이 표시됩니다.</p>
     </div>
     <div id="dyn"></div>
   </div>
 </div>
 <script src="config.js?v=5"></script>
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 <script>
 mountDemoBadge();
 document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
@@ -44,13 +44,13 @@ function getPass() { return IS_DEMO ? 'demo' : (sessionStorage.getItem(passKey) 
 function sessions() { return (state && state.sessions) || []; }
 
 function dynHtml() {
-  if (!sessions().length) return '<div class="card center muted">세션이 없습니다. Supabase에서 migrate-v2.sql을 실행했는지 확인하세요.</div>';
+  if (!sessions().length) return '<div class="card center muted">프로그램이 없습니다. Supabase에서 migrate-v3.sql을 실행했는지 확인하세요.</div>';
   return sessions().map(function (s, i) {
     const qs = (s.questions || []).slice().reverse();
     const sel = (s.questions || []).filter(function (q) { return q.selected; });
     let x = '<div class="card">'
       + '<div class="sess-row"><div>'
-      + '<span class="round-no">SESSION ' + (i + 1) + '</span>'
+      + '<span class="round-no">PROGRAM ' + (i + 1) + '</span>'
       + '<h2 style="margin:6px 0 4px">' + esc(s.title) + '</h2>'
       + '<p class="q-meta" style="margin:0">질문 ' + (s.questions || []).length + '개 · 선정 ' + sel.length + '/2 · 스크린: ?s=' + (i + 1) + '</p>'
       + '</div>'
@@ -62,7 +62,7 @@ function dynHtml() {
         return '<div class="qcard' + (q.selected ? ' win' : '') + '">'
           + (q.selected ? '<div class="win-tag">🏆 선정됨</div>' : '')
           + '<div class="q-content">' + esc(q.content) + '</div>'
-          + '<div class="q-meta">' + esc(q.author || '익명') + '</div>'
+          + '<div class="q-meta">' + esc(q.author || '익명') + (q.phone4 ? ' · ' + esc(q.phone4) : '') + '</div>'
           + '<div class="q-actions">'
           + '<button class="btn small' + (q.selected ? '' : ' btn-primary') + '" data-act="sel" data-id="' + q.id + '" data-val="' + (q.selected ? '0' : '1') + '"' + (blocked ? ' disabled' : '') + '>'
           + (q.selected ? '선정 해제' : '⭐ 선정') + '</button>'
@@ -77,7 +77,7 @@ function dynHtml() {
 }
 
 async function refresh() {
-  state = await store.getState();
+  state = await store.getStateAdmin(getPass());
   const k = JSON.stringify(state);
   if (k !== dynKey) { dynKey = k; document.getElementById('dyn').innerHTML = dynHtml(); }
 }
