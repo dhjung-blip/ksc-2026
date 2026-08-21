@@ -2,7 +2,8 @@
    CONFIG(config.js)에 Supabase 값이 있으면 서버 모드, 없으면 데모 모드(localStorage) */
 
 const CFG = window.CONFIG || {};
-const IS_DEMO = !(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY);
+const IS_DEMO = !(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY)
+  || new URLSearchParams(location.search).get('demo') === '1';
 
 /* ---------- 서버 모드 (Supabase REST) ---------- */
 function sbHeaders(extra) {
@@ -47,58 +48,63 @@ const SupabaseStore = {
 };
 
 /* ---------- 데모 모드 (localStorage) ---------- */
-const DEMO_KEY = 'qws-demo-v1';
+const DEMO_KEY = 'qws-demo-v2';
 function demoRead() {
-  try { return JSON.parse(localStorage.getItem(DEMO_KEY)) || { rounds: [], questions: [], seq: 1 }; }
-  catch (e) { return { rounds: [], questions: [], seq: 1 }; }
+  let d = null;
+  try { d = JSON.parse(localStorage.getItem(DEMO_KEY)); } catch (e) {}
+  if (!d || !Array.isArray(d.sessions)) {
+    d = {
+      sessions: (CFG.SESSION_TITLES || ['세션 1']).map(function (t, i) {
+        return { id: i + 1, title: t, status: 'open', questions: [] };
+      }),
+      seq: 100,
+    };
+  }
+  return d;
 }
 function demoWrite(d) { localStorage.setItem(DEMO_KEY, JSON.stringify(d)); }
+function demoFind(d, sid) { return d.sessions.find(function (s) { return s.id === sid; }); }
 
 const LocalStore = {
   async getState() {
     const d = demoRead();
-    const last = d.rounds[d.rounds.length - 1] || null;
-    const round = last ? Object.assign({}, last, { round_no: d.rounds.length }) : null;
-    const questions = last ? d.questions.filter(q => q.round_id === last.id) : [];
-    const winners = d.questions.filter(q => q.selected).map(q => {
-      const ri = d.rounds.findIndex(r => r.id === q.round_id);
-      return Object.assign({}, q, { round_title: (d.rounds[ri] || {}).title || '', round_no: ri + 1 });
-    });
-    return { round: round, questions: questions, winners: winners };
+    return { sessions: d.sessions.map(function (s, i) {
+      return { id: s.id, title: s.title, status: s.status, round_no: i + 1, questions: s.questions || [] };
+    }) };
   },
-  async submitQuestion(roundId, author, content) {
+  async submitQuestion(sessionId, author, content) {
     const d = demoRead();
-    const r = d.rounds.find(r => r.id === roundId);
-    if (!r || r.status !== 'open') throw new Error('질문 접수가 마감됐습니다.');
-    const q = { id: d.seq++, round_id: roundId, author: author, content: content, selected: false, created_at: new Date().toISOString() };
-    d.questions.push(q); demoWrite(d);
+    const s = demoFind(d, sessionId);
+    if (!s || s.status !== 'open') throw new Error('질문 접수가 마감된 세션입니다.');
+    const q = { id: d.seq++, round_id: sessionId, author: author, content: content, selected: false, created_at: new Date().toISOString() };
+    s.questions.push(q); demoWrite(d);
     return q;
   },
   async adminLogin() { return true; },
   async createRound(_p, title) {
     const d = demoRead();
-    d.rounds.forEach(r => { r.status = 'closed'; });
-    const t = (title || '').trim() || ('라운드 ' + (d.rounds.length + 1));
-    d.rounds.push({ id: d.seq++, title: t, status: 'open', created_at: new Date().toISOString() });
+    d.sessions.push({ id: d.seq++, title: (title || '').trim() || ('세션 ' + (d.sessions.length + 1)), status: 'open', questions: [] });
     demoWrite(d);
   },
-  async closeRound(_p, id) { const d = demoRead(); const r = d.rounds.find(r => r.id === id); if (r) r.status = 'closed'; demoWrite(d); },
-  async reopenRound(_p, id) {
-    const d = demoRead();
-    d.rounds.forEach(r => { r.status = 'closed'; });
-    const r = d.rounds.find(r => r.id === id); if (r) r.status = 'open';
-    demoWrite(d);
-  },
+  async closeRound(_p, id) { const d = demoRead(); const s = demoFind(d, id); if (s) s.status = 'closed'; demoWrite(d); },
+  async reopenRound(_p, id) { const d = demoRead(); const s = demoFind(d, id); if (s) s.status = 'open'; demoWrite(d); },
   async setSelected(_p, id, sel) {
     const d = demoRead();
-    const q = d.questions.find(q => q.id === id); if (!q) return;
-    if (sel) {
-      const n = d.questions.filter(x => x.round_id === q.round_id && x.selected).length;
-      if (n >= 2) throw new Error('MAX_SELECTED');
+    for (const s of d.sessions) {
+      const q = (s.questions || []).find(function (x) { return x.id === id; });
+      if (!q) continue;
+      if (sel) {
+        const n = s.questions.filter(function (x) { return x.selected; }).length;
+        if (n >= 2) throw new Error('MAX_SELECTED');
+      }
+      q.selected = sel; demoWrite(d); return;
     }
-    q.selected = sel; demoWrite(d);
   },
-  async deleteQuestion(_p, id) { const d = demoRead(); d.questions = d.questions.filter(q => q.id !== id); demoWrite(d); },
+  async deleteQuestion(_p, id) {
+    const d = demoRead();
+    d.sessions.forEach(function (s) { s.questions = (s.questions || []).filter(function (q) { return q.id !== id; }); });
+    demoWrite(d);
+  },
 };
 
 const store = IS_DEMO ? LocalStore : SupabaseStore;

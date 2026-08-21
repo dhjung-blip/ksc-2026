@@ -113,3 +113,10 @@ main#stage{flex:1;overflow:hidden;margin-top:22px}
 .dots::after{content:'…';animation:dots 1.5s steps(4) infinite}
 @keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
 @media (max-width:900px){.t-list{grid-template-columns:1fr}.s-big{font-size:28px}.s-round{font-size:26px}}
+
+/* ---------- 세션 선택/관리 ---------- */
+.sess-pick{cursor:pointer;transition:border-color .15s ease}
+.sess-pick:hover{border-color:var(--bronze-soft)}
+.back-link{display:inline-block;margin:4px 0 2px;text-decoration:none;color:var(--muted)}
+.back-link:hover{color:var(--ink)}
+.sess-row{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}

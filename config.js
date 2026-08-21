@@ -6,12 +6,12 @@ window.CONFIG = {
 
   // 라운드(세션) 제목 목록 — 진행자 페이지에서 순서대로 골라 시작합니다.
   SESSION_TITLES: [
-    "AI drug discovery: Data, model, and beyond",
-    "AI agent 기반 합성 가능한 신약 후보물질 설계",
-    "신약개발에서의 AI의 역할",
-    "DeepZema: AI 기반 합성신약 연구개발 플랫폼을 활용한 Drug Discovery",
-    "신약개발에서 AIX(AI Transformation)",
-    "in silico Drug Discovery의 2026년 트렌드: 'AI 신약개발'의 모호함을 넘어 증명(Proof)으로",
+    "AI drug discovery: Data, model, and beyond -신현진 소장-",
+    "AI agent 기반 합성 가능한 신약 후보물질 설계 - 장우대 교수-",
+    "신약개발에서의 AI의 역할 -김승하 팀장-",
+    "DeepZema: AI 기반 합성신약 연구개발 플랫폼을 활용한 Drug Discovery -임동철 CTO-",
+    "신약개발에서 AIX(AI Transformation)-김승하 연구원-",
+    "in silico Drug Discovery의 2026년 트렌드: 'AI 신약개발'의 모호함을 넘어 증명(Proof)으로 -오경석 연구위원-",
   ],
 
   SUPABASE_URL: "https://ghuhwnbhvualolpbdpxt.supabase.co",      // 예: https://abcdefgh.supabase.co

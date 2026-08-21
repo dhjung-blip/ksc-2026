@@ -69,7 +69,6 @@ language plpgsql security definer set search_path = public as $$
 declare new_id bigint; n bigint;
 begin
   perform check_pass(pass);
-  update rounds set status = 'closed' where status = 'open';
   select count(*) + 1 into n from rounds;
   insert into rounds (title)
     values (coalesce(nullif(trim(p_title), ''), '라운드 ' || n))
@@ -88,7 +87,6 @@ create or replace function reopen_round(pass text, p_round_id bigint) returns vo
 language plpgsql security definer set search_path = public as $$
 begin
   perform check_pass(pass);
-  update rounds set status = 'closed' where status = 'open';
   update rounds set status = 'open' where id = p_round_id;
 end $$;
 
@@ -120,24 +118,14 @@ end $$;
 create or replace function get_state() returns json
 language sql stable security definer set search_path = public as $$
   select json_build_object(
-    'round', (
-      select row_to_json(r) from (
-        select r1.*, (select count(*) from rounds r2 where r2.id <= r1.id) as round_no
-        from rounds r1 order by r1.id desc limit 1
-      ) r
-    ),
-    'questions', coalesce((
-      select json_agg(q order by q.id)
-      from questions q
-      where q.round_id = (select max(id) from rounds)
-    ), '[]'::json),
-    'winners', coalesce((
-      select json_agg(w order by w.round_id, w.id) from (
-        select q.*, r.title as round_title,
-               (select count(*) from rounds r2 where r2.id <= r.id) as round_no
-        from questions q join rounds r on r.id = q.round_id
-        where q.selected
-      ) w
+    'sessions', coalesce((
+      select json_agg(s order by s.id) from (
+        select r.id, r.title, r.status, r.created_at,
+               (select count(*) from rounds r2 where r2.id <= r.id) as round_no,
+               coalesce((select json_agg(q order by q.id)
+                         from questions q where q.round_id = r.id), '[]'::json) as questions
+        from rounds r
+      ) s
     ), '[]'::json)
   )
 $$;

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>진행자 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=13">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="admin">
@@ -24,21 +24,15 @@
 
   <div id="main" style="display:none">
     <div class="card">
-      <h2>새 라운드 시작</h2>
-      <div class="row">
-        <select id="titleSel"></select>
-        <button id="createBtn" class="btn btn-primary">시작</button>
-      </div>
-      <div class="row" id="customRow" style="display:none;margin-top:8px">
-        <input id="newTitle" placeholder="세션 제목 직접 입력">
-      </div>
-      <p class="muted small">세션을 골라 시작하세요. 새 라운드를 시작하면 진행 중이던 라운드는 자동으로 마감되며, QR/주소는 그대로 유지됩니다.</p>
+      <h2>세션 관리</h2>
+      <p class="muted small">세션별로 질문 접수를 열고 닫고, 질문마다 ⭐ 선정(세션당 최대 2개)·삭제할 수 있습니다.
+      빔프로젝터는 <b>screen.html?s=세션번호</b>로 열면 해당 세션 보드가, 번호 없이 열면 전체 현황판이 표시됩니다.</p>
     </div>
     <div id="dyn"></div>
   </div>
 </div>
 <script src="config.js?v=5"></script>
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 <script>
 mountDemoBadge();
 document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
@@ -47,47 +41,39 @@ const passKey = 'qws-pass';
 let state = null, dynKey = '', polling = false;
 
 function getPass() { return IS_DEMO ? 'demo' : (sessionStorage.getItem(passKey) || ''); }
+function sessions() { return (state && state.sessions) || []; }
 
 function dynHtml() {
-  const r = state.round;
-  if (!r) return '<div class="card center muted">아직 라운드가 없습니다.<br>위에서 첫 라운드를 시작하세요.</div>';
-  const qs = state.questions || [];
-  const sel = qs.filter(function (q) { return q.selected; });
-  let h = '<div class="card">'
-    + '<div class="round-head compact"><span class="round-no">라운드 ' + r.round_no + '</span>'
-    + '<span class="pill ' + (r.status === 'open' ? 'open' : 'closed') + '">' + (r.status === 'open' ? '질문 접수 중' : '접수 마감') + '</span>'
-    + '<h2 style="margin-top:6px">' + esc(r.title) + '</h2></div>'
-    + '<div class="row">'
-    + (r.status === 'open'
-      ? '<button class="btn" data-act="close" data-id="' + r.id + '">질문 접수 마감</button>'
-      : '<button class="btn" data-act="reopen" data-id="' + r.id + '">접수 다시 열기</button>')
-    + '</div></div>';
-
-  h += '<div class="list-head">질문 <b>' + qs.length + '</b>개 · 선정 <b>' + sel.length + '</b>/2</div>';
-  if (!qs.length) h += '<div class="card center muted">아직 등록된 질문이 없습니다.</div>';
-
-  h += qs.slice().reverse().map(function (q) {
-    const blocked = sel.length >= 2 && !q.selected;
-    return '<div class="qcard' + (q.selected ? ' win' : '') + '">'
-      + (q.selected ? '<div class="win-tag">🏆 선정됨</div>' : '')
-      + '<div class="q-content">' + esc(q.content) + '</div>'
-      + '<div class="q-meta">' + esc(q.author || '익명') + '</div>'
-      + '<div class="q-actions">'
-      + '<button class="btn small ' + (q.selected ? '' : 'btn-primary') + '" data-act="sel" data-id="' + q.id + '" data-val="' + (q.selected ? '0' : '1') + '"' + (blocked ? ' disabled' : '') + '>'
-      + (q.selected ? '선정 해제' : '⭐ 선정') + '</button>'
-      + '<button class="btn small btn-danger" data-act="del" data-id="' + q.id + '">삭제</button>'
-      + '</div></div>';
+  if (!sessions().length) return '<div class="card center muted">세션이 없습니다. Supabase에서 migrate-v2.sql을 실행했는지 확인하세요.</div>';
+  return sessions().map(function (s, i) {
+    const qs = (s.questions || []).slice().reverse();
+    const sel = (s.questions || []).filter(function (q) { return q.selected; });
+    let x = '<div class="card">'
+      + '<div class="sess-row"><div>'
+      + '<span class="round-no">SESSION ' + (i + 1) + '</span>'
+      + '<h2 style="margin:6px 0 4px">' + esc(s.title) + '</h2>'
+      + '<p class="q-meta" style="margin:0">질문 ' + (s.questions || []).length + '개 · 선정 ' + sel.length + '/2 · 스크린: ?s=' + (i + 1) + '</p>'
+      + '</div>'
+      + '<button class="btn small" data-act="' + (s.status === 'open' ? 'close' : 'reopen') + '" data-id="' + s.id + '">'
+      + (s.status === 'open' ? '접수 마감' : '접수 열기') + '</button></div>';
+    if (qs.length) {
+      x += qs.map(function (q) {
+        const blocked = sel.length >= 2 && !q.selected;
+        return '<div class="qcard' + (q.selected ? ' win' : '') + '">'
+          + (q.selected ? '<div class="win-tag">🏆 선정됨</div>' : '')
+          + '<div class="q-content">' + esc(q.content) + '</div>'
+          + '<div class="q-meta">' + esc(q.author || '익명') + '</div>'
+          + '<div class="q-actions">'
+          + '<button class="btn small' + (q.selected ? '' : ' btn-primary') + '" data-act="sel" data-id="' + q.id + '" data-val="' + (q.selected ? '0' : '1') + '"' + (blocked ? ' disabled' : '') + '>'
+          + (q.selected ? '선정 해제' : '⭐ 선정') + '</button>'
+          + '<button class="btn small btn-danger" data-act="del" data-id="' + q.id + '">삭제</button>'
+          + '</div></div>';
+      }).join('');
+    } else {
+      x += '<p class="muted small" style="margin:10px 0 0">아직 질문이 없습니다.</p>';
+    }
+    return x + '</div>';
   }).join('');
-
-  const w = (state.winners || []).filter(function (x) { return x.round_id !== r.id; });
-  if (w.length) {
-    h += '<h2 class="section-title">지난 선정 기록</h2>' + w.map(function (x) {
-      return '<div class="qcard slim"><div class="q-meta">라운드 ' + x.round_no + ' · ' + esc(x.round_title) + '</div>'
-        + '<div class="q-content">' + esc(x.content) + '</div>'
-        + '<div class="q-meta">' + esc(x.author || '익명') + '</div></div>';
-    }).join('');
-  }
-  return h;
 }
 
 async function refresh() {
@@ -99,7 +85,7 @@ async function refresh() {
 function handleErr(err) {
   const m = String(err && err.message || err);
   if (m.indexOf('PASSCODE') >= 0) { sessionStorage.removeItem(passKey); location.reload(); return; }
-  if (m.indexOf('MAX_SELECTED') >= 0) { toast('이미 2개를 선정했습니다. 하나를 해제한 뒤 선정하세요.', true); return; }
+  if (m.indexOf('MAX_SELECTED') >= 0) { toast('이 세션은 이미 2개를 선정했습니다. 하나를 해제한 뒤 선정하세요.', true); return; }
   toast(m, true);
 }
 
@@ -116,51 +102,9 @@ async function dynClick(e) {
   } catch (err) { handleErr(err); }
 }
 
-const TITLES = (CFG.SESSION_TITLES || []).slice();
-
-function selectedTitle() {
-  const sel = document.getElementById('titleSel');
-  if (sel.value === '__custom__') return document.getElementById('newTitle').value.trim();
-  return TITLES[Number(sel.value)] || '';
-}
-
 function init() {
   document.getElementById('gate').style.display = 'none';
   document.getElementById('main').style.display = 'block';
-
-  const sel = document.getElementById('titleSel');
-  sel.innerHTML = TITLES.map(function (t, i) {
-    return '<option value="' + i + '">' + (i + 1) + '. ' + esc(t) + '</option>';
-  }).join('') + '<option value="__custom__">직접 입력…</option>';
-  sel.addEventListener('change', function () {
-    document.getElementById('customRow').style.display = sel.value === '__custom__' ? 'flex' : 'none';
-  });
-  if (!TITLES.length) {
-    sel.value = '__custom__';
-    document.getElementById('customRow').style.display = 'flex';
-  } else {
-    store.getState().then(function (s) {
-      const idx = s && s.round ? s.round.round_no : 0;
-      if (TITLES[idx] !== undefined) sel.value = String(idx);
-    }).catch(function () {});
-  }
-
-  document.getElementById('createBtn').addEventListener('click', async function () {
-    const btn = document.getElementById('createBtn');
-    btn.disabled = true;
-    try {
-      await store.createRound(getPass(), selectedTitle());
-      toast('새 라운드를 시작했습니다 ✅');
-      if (sel.value !== '__custom__') {
-        const nx = Number(sel.value) + 1;
-        if (TITLES[nx] !== undefined) sel.value = String(nx);
-      } else {
-        document.getElementById('newTitle').value = '';
-      }
-      await refresh();
-    } catch (e) { handleErr(e); }
-    btn.disabled = false;
-  });
   document.getElementById('dyn').addEventListener('click', dynClick);
   if (!polling) { polling = true; startPolling(refresh); }
 }

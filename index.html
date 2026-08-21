@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>질문 등록 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=13">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body>
@@ -13,13 +13,13 @@
   <div id="app"><div class="card center muted">불러오는 중…</div></div>
 </div>
 <script src="config.js?v=5"></script>
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 <script>
 mountDemoBadge();
 document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
 
 const app = document.getElementById('app');
-const nameKey = 'qws-name', mineKey = 'qws-mine';
+const nameKey = 'qws-name', mineKey = 'qws-mine', selKey = 'qws-session';
 let state = null, viewKey = '';
 
 function myIds(rid) {
@@ -31,6 +31,11 @@ function addMine(rid, qid) {
   (m[rid] = m[rid] || []).push(qid);
   localStorage.setItem(mineKey, JSON.stringify(m));
 }
+function sessions() { return (state && state.sessions) || []; }
+function currentSession() {
+  const id = Number(localStorage.getItem(selKey));
+  return sessions().find(function (s) { return s.id === id; }) || null;
+}
 
 function qCard(q, rid) {
   const mine = myIds(rid).indexOf(q.id) >= 0;
@@ -41,12 +46,26 @@ function qCard(q, rid) {
     + '</div>';
 }
 
-function listBody(r) {
-  const qs = state.questions || [];
-  if (r.status === 'open') {
+function pickerHtml() {
+  return '<div class="round-head"><h1>질문할 세션을 선택하세요</h1>'
+    + '<p class="muted small">발표를 듣고 있는 세션을 고르면 그 연사에게 질문이 전달됩니다. 언제든 바꿀 수 있습니다.</p></div>'
+    + sessions().map(function (s, i) {
+      const qs = s.questions || [];
+      const sel = qs.filter(function (q) { return q.selected; }).length;
+      const meta = '질문 ' + qs.length + '개 · ' + (s.status === 'open' ? '접수 중' : (sel ? '마감 · 우수 질문 발표됨' : '마감'));
+      return '<div class="qcard sess-pick" data-sid="' + s.id + '">'
+        + '<div class="q-meta">SESSION ' + (i + 1) + '</div>'
+        + '<div class="q-content">' + esc(s.title) + '</div>'
+        + '<div class="q-meta">' + meta + '</div></div>';
+    }).join('');
+}
+
+function listBody(s) {
+  const qs = s.questions || [];
+  if (s.status === 'open') {
     if (!qs.length) return '<div class="card center muted">아직 등록된 질문이 없습니다.<br>첫 질문을 남겨보세요!</div>';
     return '<div class="list-head">등록된 질문 <b>' + qs.length + '</b>개</div>'
-      + qs.slice().reverse().map(function (q) { return qCard(q, r.id); }).join('');
+      + qs.slice().reverse().map(function (q) { return qCard(q, s.id); }).join('');
   }
   const winners = qs.filter(function (q) { return q.selected; });
   if (!winners.length) {
@@ -54,48 +73,70 @@ function listBody(r) {
   }
   const rest = qs.filter(function (q) { return !q.selected; });
   return '<h2 class="section-title">🏆 우수 질문</h2>'
-    + winners.map(function (q) { return qCard(q, r.id); }).join('')
+    + winners.map(function (q) { return qCard(q, s.id); }).join('')
     + (rest.length
       ? '<details class="rest"><summary>전체 질문 ' + qs.length + '개 보기</summary>'
-        + rest.slice().reverse().map(function (q) { return qCard(q, r.id); }).join('') + '</details>'
+        + rest.slice().reverse().map(function (q) { return qCard(q, s.id); }).join('') + '</details>'
       : '');
 }
 
-function fullRender(r) {
-  if (!r) {
-    app.innerHTML = '<div class="card center"><div class="big-emoji">⏳</div><h2>아직 시작 전입니다</h2><p class="muted">진행자가 라운드를 시작하면<br>이 화면이 자동으로 바뀝니다.</p></div>';
-    return;
-  }
-  if (r.status === 'open') {
-    app.innerHTML =
-      '<div class="round-head"><h1>' + esc(r.title) + '</h1></div>'
-      + '<div class="card">'
+function sessionHtml(s) {
+  let h = '<a href="#" id="backSel" class="muted small back-link">‹ 다른 세션 선택</a>'
+    + '<div class="round-head"><h1>' + esc(s.title) + '</h1></div>';
+  if (s.status === 'open') {
+    h += '<div class="card">'
       + '<label>이름 <span class="muted">(선택)</span></label>'
       + '<input id="author" maxlength="40" placeholder="익명" value="' + esc(localStorage.getItem(nameKey) || '') + '">'
       + '<label>질문</label>'
       + '<textarea id="content" maxlength="500" rows="3" placeholder="질문을 입력하세요"></textarea>'
       + '<button class="btn btn-primary btn-block" id="submitBtn">질문 등록</button>'
-      + '</div>'
-      + '<div id="qlist">' + listBody(r) + '</div>';
-    document.getElementById('submitBtn').addEventListener('click', submit);
-  } else {
-    app.innerHTML =
-      '<div class="round-head"><h1>' + esc(r.title) + '</h1></div>'
-      + '<div id="qlist">' + listBody(r) + '</div>';
+      + '</div>';
   }
+  h += '<div id="qlist">' + listBody(s) + '</div>';
+  return h;
 }
 
 function render() {
-  const r = state && state.round;
-  const key = r ? (r.id + ':' + r.status) : 'none';
-  if (key !== viewKey) { viewKey = key; fullRender(r); return; }
-  if (r) {
+  if (!sessions().length) {
+    if (viewKey !== 'wait') {
+      viewKey = 'wait';
+      app.innerHTML = '<div class="card center"><div class="big-emoji">⏳</div><h2>아직 시작 전입니다</h2><p class="muted">잠시 후 다시 접속해 주세요.</p></div>';
+    }
+    return;
+  }
+  const cur = currentSession();
+  if (!cur) {
+    const key = 'pick:' + sessions().map(function (s) { return s.id + s.status + (s.questions || []).length; }).join(',');
+    if (key !== viewKey) { viewKey = key; app.innerHTML = pickerHtml(); }
+    return;
+  }
+  const key = 'sess:' + cur.id + ':' + cur.status;
+  if (key !== viewKey) {
+    viewKey = key;
+    app.innerHTML = sessionHtml(cur);
+    if (cur.status === 'open') document.getElementById('submitBtn').addEventListener('click', submit);
+    document.getElementById('backSel').addEventListener('click', function (e) {
+      e.preventDefault();
+      localStorage.removeItem(selKey);
+      viewKey = ''; render();
+    });
+  } else {
     const el = document.getElementById('qlist');
-    if (el && el.innerHTML !== listBody(r)) el.innerHTML = listBody(r);
+    const body = listBody(cur);
+    if (el && el.innerHTML !== body) el.innerHTML = body;
   }
 }
 
+app.addEventListener('click', function (e) {
+  const card = e.target.closest('.sess-pick');
+  if (!card) return;
+  localStorage.setItem(selKey, card.dataset.sid);
+  viewKey = ''; render();
+});
+
 async function submit() {
+  const cur = currentSession();
+  if (!cur) return;
   const author = document.getElementById('author').value.trim();
   const content = document.getElementById('content').value.trim();
   if (!content) { toast('질문 내용을 입력해 주세요.', true); return; }
@@ -103,13 +144,13 @@ async function submit() {
   const btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = '등록 중…';
   try {
-    const q = await store.submitQuestion(state.round.id, author || '익명', content);
-    if (q && q.id != null) addMine(state.round.id, q.id);
+    const q = await store.submitQuestion(cur.id, author || '익명', content);
+    if (q && q.id != null) addMine(cur.id, q.id);
     document.getElementById('content').value = '';
     toast('질문이 등록되었습니다 ✅');
     await refresh();
-  } catch (e) {
-    toast(e.message || '등록에 실패했습니다.', true);
+  } catch (e2) {
+    toast(e2.message || '등록에 실패했습니다.', true);
   }
   btn.disabled = false; btn.textContent = '질문 등록';
 }

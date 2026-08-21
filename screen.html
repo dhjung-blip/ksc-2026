@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스크린 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=13">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="screen">
@@ -22,7 +22,7 @@
   <main id="stage"></main>
 </div>
 <script src="config.js?v=5"></script>
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 <script>
 mountDemoBadge();
 document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
@@ -58,26 +58,21 @@ document.getElementById('urlText').textContent = baseUrl.replace(/^https?:\/\//,
 
 let state = null, key = '';
 const prevIds = new Set();
+const sParam = Number(new URLSearchParams(location.search).get('s')) || 0;
 
-function qno(i) { return 'Q.' + String(i + 1).padStart(3, '0'); }
+function sessions() { return (state && state.sessions) || []; }
+function pad3(n) { return String(n).padStart(3, '0'); }
+function qno(i) { return 'Q.' + pad3(i + 1); }
 
-function stageHtml() {
-  const r = state.round, qs = state.questions || [];
-  if (!r) {
-    const w = state.winners || [];
-    return '<div class="s-center"><div class="s-cross">+</div>'
-      + '<div class="s-big">QR을 스캔해 접속하세요</div>'
-      + '<div class="s-sub">SCAN TO ASK — 라운드 시작 대기 중</div>'
-      + (w.length ? '<div class="s-winners-strip">' + w.map(function (x) { return '<div class="s-chip">★ ' + esc(x.content) + '</div>'; }).join('') + '</div>' : '')
-      + '</div>';
-  }
-  if (r.status === 'open') {
+function singleHtml(s) {
+  const qs = s.questions || [];
+  if (s.status === 'open') {
     if (!qs.length) {
-      return '<div class="s-center"><div class="s-cross">+</div><div class="s-big">첫 질문을 등록해 주세요</div><div class="s-sub">SCAN TO ASK — QR 스캔 후 바로 등록</div></div>';
+      return '<div class="s-center"><div class="s-cross">+</div><div class="s-big">첫 질문을 등록해 주세요</div><div class="s-sub">SCAN TO ASK — QR 스캔 후 세션 선택</div></div>';
     }
     const shown = qs.slice(-8);
     const offset = qs.length - shown.length;
-    return '<div class="s-count">REGISTERED <b>' + String(qs.length).padStart(3, '0') + '</b>'
+    return '<div class="s-count">REGISTERED <b>' + pad3(qs.length) + '</b>'
       + (offset ? ' · 최근 8개 표시' : '') + '</div>'
       + '<ol class="t-list">'
       + shown.map(function (q, i) {
@@ -106,14 +101,40 @@ function stageHtml() {
     + '</div>';
 }
 
+function overviewHtml() {
+  return '<div class="s-count">ALL SESSIONS <b>' + pad3(sessions().length) + '</b></div>'
+    + '<ol class="t-list">'
+    + sessions().map(function (s, i) {
+      const qs = s.questions || [];
+      const sel = qs.filter(function (q) { return q.selected; }).length;
+      return '<li class="t-item' + (sel ? ' sel' : '') + '">'
+        + '<span class="t-no">S.' + String(i + 1).padStart(2, '0') + (s.status === 'open' ? '' : ' · CLOSED') + '</span>'
+        + '<p class="t-q">' + esc(s.title) + '</p>'
+        + '<span class="t-by">질문 ' + qs.length + '개' + (sel ? ' · ★ 우수 질문 발표' : '') + '</span>'
+        + '</li>';
+    }).join('')
+    + '</ol>';
+}
+
+function stageHtml() {
+  if (!sessions().length) {
+    return '<div class="s-center"><div class="s-cross">+</div>'
+      + '<div class="s-big">QR을 스캔해 접속하세요</div>'
+      + '<div class="s-sub">SCAN TO ASK — 준비 중</div></div>';
+  }
+  const s = sParam >= 1 ? sessions()[sParam - 1] : null;
+  return s ? singleHtml(s) : overviewHtml();
+}
+
 function render() {
-  const r = state.round;
-  document.getElementById('sRound').textContent = r ? r.title : '곧 시작합니다';
-  const k = JSON.stringify(state);
+  const s = sParam >= 1 ? sessions()[sParam - 1] : null;
+  document.getElementById('sRound').textContent =
+    s ? s.title : (sessions().length ? '전체 세션 현황' : '곧 시작합니다');
+  const k = sParam + '|' + JSON.stringify(state);
   if (k === key) return;
   key = k;
   document.getElementById('stage').innerHTML = stageHtml();
-  (state.questions || []).forEach(function (q) { prevIds.add(q.id); });
+  sessions().forEach(function (ss) { (ss.questions || []).forEach(function (q) { prevIds.add(q.id); }); });
 }
 
 startPolling(async function () { state = await store.getState(); render(); }, 2000);
