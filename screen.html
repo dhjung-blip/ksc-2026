@@ -73,7 +73,10 @@ function urlFor(sNum) {
 function navHtml() {
   const total = sessions().length;
   const next = sParam >= total ? 1 : sParam + 1;
-  return '<div class="s-nav"><a href="' + urlFor(0) + '">‹ 전체 프로그램</a>'
+  const prev = sParam <= 1 ? total : sParam - 1;
+  return '<div class="s-nav">'
+    + '<a href="' + urlFor(prev) + '">‹ 이전 프로그램</a>'
+    + '<a href="' + urlFor(0) + '">전체 프로그램</a>'
     + '<a href="' + urlFor(next) + '">다음 프로그램 ›</a></div>';
 }
 
