@@ -24,10 +24,13 @@
 
   <div id="main" style="display:none">
     <div id="dyn"></div>
+    <div class="center" style="margin-top:26px">
+      <button id="resetBtn" class="btn small btn-danger">전체 초기화</button>
+    </div>
   </div>
 </div>
 <script src="config.js?v=5"></script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 <script>
 mountDemoBadge();
 document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
@@ -101,6 +104,11 @@ function init() {
   document.getElementById('gate').style.display = 'none';
   document.getElementById('main').style.display = 'block';
   document.getElementById('dyn').addEventListener('click', dynClick);
+  document.getElementById('resetBtn').addEventListener('click', async function () {
+    if (!confirm('모든 질문이 삭제되고 전체 프로그램이 접수 중 상태로 돌아갑니다.\n초기화할까요?')) return;
+    try { await store.resetAll(getPass()); toast('초기화되었습니다'); await refresh(); }
+    catch (e) { handleErr(e); }
+  });
   if (!polling) { polling = true; startPolling(refresh); }
 }
 

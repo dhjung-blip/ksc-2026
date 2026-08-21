@@ -66,6 +66,17 @@ end $$;
 
 grant execute on function get_state_admin(text) to anon, authenticated;
 
+-- 전체 초기화 (질문 삭제 + 모든 프로그램 접수 중으로)
+create or replace function reset_all(pass text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  perform check_pass(pass);
+  delete from questions;
+  update rounds set status = 'open';
+end $$;
+
+grant execute on function reset_all(text) to anon, authenticated;
+
 -- 프로그램 열기/만들기가 다른 프로그램을 닫지 않도록
 create or replace function reopen_round(pass text, p_round_id bigint) returns void
 language plpgsql security definer set search_path = public as $$

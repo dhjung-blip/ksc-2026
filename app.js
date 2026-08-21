@@ -41,6 +41,7 @@ const SupabaseStore = {
     return JSON.parse(text)[0];
   },
   adminLogin: (pass) => rpc('admin_login', { pass: pass }),
+  resetAll: (pass) => rpc('reset_all', { pass: pass }),
   createRound: (pass, title) => rpc('create_round', { pass: pass, p_title: title }),
   closeRound: (pass, id) => rpc('close_round', { pass: pass, p_round_id: id }),
   reopenRound: (pass, id) => rpc('reopen_round', { pass: pass, p_round_id: id }),
@@ -91,6 +92,11 @@ const LocalStore = {
     return q;
   },
   async adminLogin() { return true; },
+  async resetAll() {
+    const d = demoRead();
+    d.sessions.forEach(function (s) { s.questions = []; s.status = 'open'; });
+    demoWrite(d);
+  },
   async createRound(_p, title) {
     const d = demoRead();
     d.sessions.push({ id: d.seq++, title: (title || '').trim() || ('세션 ' + (d.sessions.length + 1)), status: 'open', questions: [] });
