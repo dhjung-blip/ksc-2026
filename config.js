@@ -14,16 +14,6 @@ window.CONFIG = {
     "in silico Drug Discovery의 2026년 트렌드: 'AI 신약개발'의 모호함을 넘어 증명(Proof)으로 -오경석 연구위원-",
   ],
 
-  // 프로그램 순서와 1:1 매칭되는 소속·시간 (포스터 기준)
-  SESSION_INFO: [
-    { org: "목암생명과학연구소", time: "13:30~14:10" },
-    { org: "고려대학교 약대", time: "14:10~14:50" },
-    { org: "KIST AIX실", time: "14:50~15:30" },
-    { org: "LG화학 생명과학 AX팀", time: "16:00~16:40" },
-    { org: "이노보테라퓨틱스", time: "16:40~17:20" },
-    { org: "대웅제약", time: "17:20~18:00" },
-  ],
-
   SUPABASE_URL: "https://ghuhwnbhvualolpbdpxt.supabase.co",      // 예: https://abcdefgh.supabase.co
   SUPABASE_ANON_KEY: "sb_publishable_DUm0YBRKV-YLIq_G5hhudw_tqJgvRpA", // Supabase > Settings > API Keys > "publishable" 키 (sb_publishable_...) — 구 대시보드에서는 anon public
 };

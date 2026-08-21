@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스크린 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=16">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="screen">
@@ -22,15 +22,15 @@
   </header>
   <main id="stage"></main>
 </div>
-<script src="config.js?v=7"></script>
-<script src="app.js?v=8"></script>
+<script src="config.js?v=6"></script>
+<script src="app.js?v=7"></script>
 <script>
 mountDemoBadge();
 document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
 
 // 스킨 (?skin=) — 구조는 동일, 색만 교체
 const SKINS = {
-  bp:       { qr: '#1B3AA6' },
+  bp:       { qr: '#131F38' },
   midnight: { qr: '#101A2E', vars: {'--cream':'#111A2C','--cream-deep':'#0C1424','--panel':'rgba(255,255,255,.07)','--ink':'#E9E6DC','--ink-deep':'#F4F1E8','--muted':'#97A0B5','--bronze':'#C9AE7C','--bronze-soft':'#A98F63','--line':'rgba(233,230,220,.18)','--line-strong':'rgba(233,230,220,.45)','--wash1':'rgba(255,255,255,.05)','--wash2':'rgba(201,174,124,.10)','--wash3':'rgba(120,140,190,.10)'} },
   ivory:    { qr: '#1B2540', vars: {'--cream':'#F4F2EA','--cream-deep':'#ECE8DC','--panel':'rgba(255,255,255,.68)','--ink':'#26324E','--ink-deep':'#1B2540','--muted':'#83857B','--bronze':'#2F4A86','--bronze-soft':'#6C82B5','--line':'rgba(30,42,72,.18)','--line-strong':'rgba(30,42,72,.42)','--wash1':'rgba(255,255,255,.9)','--wash2':'rgba(212,202,172,.35)','--wash3':'rgba(212,202,172,.25)'} },
   prussian: { qr: '#14315E', vars: {'--cream':'#1C3C71','--cream-deep':'#152F5B','--panel':'rgba(255,255,255,.08)','--ink':'#EDF2FA','--ink-deep':'#FFFFFF','--muted':'#9FB4D6','--bronze':'#D9C289','--bronze-soft':'#B7A26E','--line':'rgba(237,242,250,.2)','--line-strong':'rgba(237,242,250,.5)','--wash1':'rgba(255,255,255,.10)','--wash2':'rgba(120,150,200,.18)','--wash3':'rgba(120,150,200,.14)'} },
@@ -49,7 +49,7 @@ document.getElementById('urlText').textContent = baseUrl.replace(/^https?:\/\//,
   s.onload = function () {
     new QRCode(document.getElementById('qrbox'), {
       text: baseUrl, width: 172, height: 172,
-      colorDark: SKIN.qr || '#1B3AA6', colorLight: '#ffffff',
+      colorDark: SKIN.qr || '#14418F', colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.M,
     });
   };
@@ -120,14 +120,12 @@ function overviewHtml() {
       const qs = s.questions || [];
       const sel = qs.filter(function (q) { return q.selected; }).length;
       const p = splitTitle(s.title);
-      const info = sessionInfo(i);
       return '<li class="t-item' + (sel ? ' sel' : '') + '" data-s="' + (i + 1) + '">'
-        + '<span class="num-tile ' + tileClass(i) + '">' + (i + 1) + '</span>'
-        + '<div class="lineup-body">'
+        + '<span class="t-no">P.' + String(i + 1).padStart(2, '0') + (s.status === 'open' ? '' : ' · CLOSED') + '</span>'
         + '<p class="t-q">' + esc(p.title) + '</p>'
-        + (p.speaker ? '<span class="t-sp">' + esc(p.speaker) + (info.org ? ' · ' + esc(info.org) : '') + '</span>' : '')
-        + '<span class="t-by">' + (info.time ? '🕐 ' + esc(info.time) + ' · ' : '') + '질문 ' + qs.length + '개' + (sel ? ' · ★ 우수 질문 발표' : '') + (s.status === 'open' ? '' : ' · 마감') + '</span>'
-        + '</div></li>';
+        + (p.speaker ? '<span class="t-sp">' + esc(p.speaker) + '</span>' : '')
+        + '<span class="t-by">질문 ' + qs.length + '개' + (sel ? ' · ★ 우수 질문 발표' : '') + '</span>'
+        + '</li>';
     }).join('')
     + '</ol>';
 }
@@ -148,9 +146,7 @@ function render() {
   const p = s ? splitTitle(s.title) : null;
   document.getElementById('sRound').textContent =
     p ? p.title : (sessions().length ? ev : '곧 시작합니다');
-  const inf = s ? sessionInfo(sParam - 1) : {};
-  document.getElementById('sSpeaker').textContent = p && p.speaker
-    ? p.speaker + (inf.org ? ' · ' + inf.org : '') + (inf.time ? '  🕐 ' + inf.time : '') : '';
+  document.getElementById('sSpeaker').textContent = p && p.speaker ? p.speaker : '';
   document.getElementById('eventTitle').textContent = s ? ev : '';
   const k = sParam + '|' + JSON.stringify(state);
   if (k === key) return;

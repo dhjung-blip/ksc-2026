@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>진행자 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=16">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="admin">
@@ -29,8 +29,8 @@
     </div>
   </div>
 </div>
-<script src="config.js?v=7"></script>
-<script src="app.js?v=8"></script>
+<script src="config.js?v=6"></script>
+<script src="app.js?v=7"></script>
 <script>
 mountDemoBadge();
 document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
@@ -46,14 +46,12 @@ function dynHtml() {
   return sessions().map(function (s, i) {
     const qs = (s.questions || []).slice().reverse();
     const sel = (s.questions || []).filter(function (q) { return q.selected; });
-    const p = splitTitle(s.title);
-    const info = sessionInfo(i);
     let x = '<div class="card">'
-      + '<div class="sess-row"><div class="sess-row-left">'
-      + '<span class="num-tile ' + tileClass(i) + '">' + (i + 1) + '</span>'
-      + '<div><h2 style="margin:2px 0 4px">' + esc(p.title) + '</h2>'
-      + '<p class="q-meta" style="margin:0">' + (p.speaker ? esc(p.speaker) + ' · ' : '') + (info.time ? '🕐 ' + esc(info.time) + ' · ' : '') + '질문 ' + (s.questions || []).length + '개 · 선정 ' + sel.length + '/2 · 스크린: ?s=' + (i + 1) + '</p>'
-      + '</div></div>'
+      + '<div class="sess-row"><div>'
+      + '<span class="round-no">PROGRAM ' + (i + 1) + '</span>'
+      + '<h2 style="margin:6px 0 4px">' + esc(splitTitle(s.title).title) + '</h2>'
+      + '<p class="q-meta" style="margin:0">' + (splitTitle(s.title).speaker ? esc(splitTitle(s.title).speaker) + ' · ' : '') + '질문 ' + (s.questions || []).length + '개 · 선정 ' + sel.length + '/2 · 스크린: ?s=' + (i + 1) + '</p>'
+      + '</div>'
       + '<button class="btn small" data-act="' + (s.status === 'open' ? 'close' : 'reopen') + '" data-id="' + s.id + '">'
       + (s.status === 'open' ? '접수 마감' : '접수 열기') + '</button></div>';
     if (qs.length) {

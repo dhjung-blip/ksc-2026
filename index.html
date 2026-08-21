@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>질문 등록 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=16">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body>
@@ -12,8 +12,8 @@
   <header class="page"><div class="event-title" id="eventTitle"></div></header>
   <div id="app"><div class="card center muted">불러오는 중…</div></div>
 </div>
-<script src="config.js?v=7"></script>
-<script src="app.js?v=8"></script>
+<script src="config.js?v=6"></script>
+<script src="app.js?v=7"></script>
 <script>
 mountDemoBadge();
 document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
@@ -51,16 +51,13 @@ function pickerHtml() {
     + sessions().map(function (s, i) {
       const qs = s.questions || [];
       const sel = qs.filter(function (q) { return q.selected; }).length;
-      const stateTxt = s.status === 'open' ? '' : (sel ? ' · 마감 · 우수 질문 발표' : ' · 마감');
+      const meta = '질문 ' + qs.length + '개 · ' + (s.status === 'open' ? '접수 중' : (sel ? '마감 · 우수 질문 발표됨' : '마감'));
       const p = splitTitle(s.title);
-      const info = sessionInfo(i);
-      return '<div class="qcard sess-pick lineup" data-sid="' + s.id + '">'
-        + '<span class="num-tile ' + tileClass(i) + '">' + (i + 1) + '</span>'
-        + '<div class="lineup-body">'
+      return '<div class="qcard sess-pick" data-sid="' + s.id + '">'
+        + '<div class="q-meta">PROGRAM ' + (i + 1) + '</div>'
         + '<div class="q-content">' + esc(p.title) + '</div>'
-        + (p.speaker ? '<div class="speaker">' + esc(p.speaker) + (info.org ? '<span class="org">' + esc(info.org) + '</span>' : '') + '</div>' : '')
-        + '<div class="time">' + (info.time ? '🕐 ' + esc(info.time) + ' · ' : '') + '질문 ' + qs.length + '개' + stateTxt + '</div>'
-        + '</div></div>';
+        + (p.speaker ? '<div class="speaker">' + esc(p.speaker) + '</div>' : '')
+        + '<div class="q-meta">' + meta + '</div></div>';
     }).join('');
 }
 
@@ -86,12 +83,9 @@ function listBody(s) {
 
 function sessionHtml(s) {
   const p = splitTitle(s.title);
-  const idx = sessions().indexOf(s);
-  const info = sessionInfo(idx);
   let h = '<a href="#" id="backSel" class="muted small back-link">‹ 다른 프로그램 선택</a>'
     + '<div class="round-head"><h1>' + esc(p.title) + '</h1>'
-    + (p.speaker ? '<div class="speaker">' + esc(p.speaker) + (info.org ? '<span class="org">' + esc(info.org) + '</span>' : '') + '</div>' : '')
-    + (info.time ? '<div class="time">🕐 ' + esc(info.time) + '</div>' : '')
+    + (p.speaker ? '<div class="speaker">' + esc(p.speaker) + '</div>' : '')
     + '</div>';
   if (s.status === 'open') {
     h += '<div class="card">'
