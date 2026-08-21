@@ -71,13 +71,7 @@ function urlFor(sNum) {
   return location.pathname + (q ? '?' + q : '');
 }
 function navHtml() {
-  const total = sessions().length;
-  const next = sParam >= total ? 1 : sParam + 1;
-  const prev = sParam <= 1 ? total : sParam - 1;
-  return '<div class="s-nav">'
-    + '<a href="' + urlFor(prev) + '">‹ 이전 프로그램</a>'
-    + '<a href="' + urlFor(0) + '">전체 프로그램</a>'
-    + '<a href="' + urlFor(next) + '">다음 프로그램 ›</a></div>';
+  return '<div class="s-nav"><a href="' + urlFor(0) + '">‹ 전체 프로그램</a></div>';
 }
 
 function singleHtml(s) {
@@ -119,7 +113,7 @@ function singleHtml(s) {
 }
 
 function overviewHtml() {
-  return '<div class="s-count">ALL PROGRAMS <b>' + pad3(sessions().length) + '</b> · 클릭하면 해당 프로그램 보드로 이동</div>'
+  return '<div class="s-count">ALL PROGRAMS <b>' + pad3(sessions().length) + '</b></div>'
     + '<ol class="t-list">'
     + sessions().map(function (s, i) {
       const qs = s.questions || [];
@@ -145,8 +139,10 @@ function stageHtml() {
 
 function render() {
   const s = sParam >= 1 ? sessions()[sParam - 1] : null;
+  const ev = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
   document.getElementById('sRound').textContent =
-    s ? s.title : (sessions().length ? '전체 프로그램' : '곧 시작합니다');
+    s ? s.title : (sessions().length ? ev : '곧 시작합니다');
+  document.getElementById('eventTitle').textContent = s ? ev : '';
   const k = sParam + '|' + JSON.stringify(state);
   if (k === key) return;
   key = k;

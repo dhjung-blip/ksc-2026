@@ -47,8 +47,7 @@ function qCard(q, rid) {
 }
 
 function pickerHtml() {
-  return '<div class="round-head"><h1>질문할 프로그램을 선택하세요</h1>'
-    + '<p class="muted small">발표를 듣고 있는 프로그램을 고르면 그 연사에게 질문이 전달됩니다. 언제든 바꿀 수 있습니다.</p></div>'
+  return '<div class="round-head"><h1>질문할 프로그램을 선택하세요</h1></div>'
     + sessions().map(function (s, i) {
       const qs = s.questions || [];
       const sel = qs.filter(function (q) { return q.selected; }).length;
@@ -87,7 +86,7 @@ function sessionHtml(s) {
     h += '<div class="card">'
       + '<label>이름 <span class="muted">(선택)</span></label>'
       + '<input id="author" maxlength="40" placeholder="익명" value="' + esc(localStorage.getItem(nameKey) || '') + '">'
-      + '<label>전화번호 뒤 4자리 <span class="muted">(필수 · 우수 질문 선정 시 본인 확인용)</span></label>'
+      + '<label>전화번호 뒤 4자리</label>'
       + '<input id="phone4" inputmode="numeric" maxlength="4" placeholder="0000" value="' + esc(localStorage.getItem(phoneKey) || '') + '">'
       + '<label>질문</label>'
       + '<textarea id="content" maxlength="500" rows="3" placeholder="질문을 입력하세요"></textarea>'
