@@ -31,7 +31,7 @@ const SupabaseStore = {
   getState: () => rpc('get_state'),
   getStateAdmin: (pass) => rpc('get_state_admin', { pass: pass }),
   async submitQuestion(roundId, author, content, phone4) {
-    const res = await fetch(CFG.SUPABASE_URL + '/rest/v1/questions', {
+    const res = await fetch(CFG.SUPABASE_URL + '/rest/v1/questions?select=id', {
       method: 'POST',
       headers: sbHeaders({ Prefer: 'return=representation' }),
       body: JSON.stringify({ round_id: roundId, author: author, content: content, phone4: phone4 || '' }),
