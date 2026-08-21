@@ -101,10 +101,10 @@ end $$;
 truncate table questions, rounds restart identity cascade;
 insert into rounds (title, status) values
   ('AI drug discovery: Data, model, and beyond -신현진 소장-', 'open'),
-  ('AI agent 기반 합성 가능한 신약 후보물질 설계 - 장우대 교수-', 'open'),
+  ('AI agent 기반 합성 가능한 신약 후보물질 설계 -장우대 교수-', 'open'),
+  ('AI 전환을 향한 여정 -이제현 실장-', 'open'),
   ('신약개발에서의 AI의 역할 -김승하 팀장-', 'open'),
   ('DeepZema: AI 기반 합성신약 연구개발 플랫폼을 활용한 Drug Discovery -임동철 CTO-', 'open'),
-  ('신약개발에서 AIX(AI Transformation)-김승하 연구원-', 'open'),
   ('in silico Drug Discovery의 2026년 트렌드: ''AI 신약개발''의 모호함을 넘어 증명(Proof)으로 -오경석 연구위원-', 'open');
 
 notify pgrst, 'reload schema';
