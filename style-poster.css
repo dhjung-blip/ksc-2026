@@ -111,7 +111,7 @@ body.screen{background:#FDFEFF;color:var(--ink);overflow:hidden}
 #qrbox{background:#fff;padding:10px;border:1px solid var(--line);border-radius:14px;display:inline-block;box-shadow:var(--shadow)}
 #qrbox img,#qrbox canvas{display:block}
 .s-url{font-size:12.5px;color:var(--muted);margin-top:9px;font-weight:700;letter-spacing:.04em}
-main#stage{flex:1;overflow:hidden;margin-top:20px}
+main#stage{flex:1;overflow:hidden;margin-top:20px;position:relative}
 .s-nav{display:flex;justify-content:flex-start;margin:0 0 12px}
 .s-nav a{font-size:14px;font-weight:700;color:var(--muted);text-decoration:none}
 .s-nav a:hover{color:var(--navy)}
@@ -156,3 +156,9 @@ main#stage{flex:1;overflow:hidden;margin-top:20px}
 /* ---------- 세션 배지 (포스터 시그니처) ---------- */
 .event-badge{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--grad-green);padding:6px 14px;border-radius:99px;margin-bottom:10px}
 .s-head .event-badge{font-size:13px;padding:7px 16px;margin-bottom:12px}
+
+/* ---------- 대기 화면: 초대형 행사명 + 티커 ---------- */
+.s-giant{font-size:clamp(90px,13vw,190px);font-weight:800;letter-spacing:-.03em;line-height:1;background:var(--grad-blue);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:6px}
+.s-ticker{position:absolute;left:0;right:0;bottom:0;background:var(--grad-green);overflow:hidden;padding:13px 0;border-radius:12px}
+.s-ticker-track{display:inline-block;white-space:nowrap;font-size:15px;font-weight:800;letter-spacing:.1em;color:#fff;animation:tick 22s linear infinite}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
