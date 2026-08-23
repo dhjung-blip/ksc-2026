@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스크린 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=21">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="screen">
@@ -21,6 +21,7 @@
       <div class="s-url" id="urlText"></div>
     </div>
   </header>
+  <div class="s-ticker"><div class="s-ticker-track">SCAN TO ASK · QR을 스캔해 질문을 등록해 주세요 · In Silico Drug Discovery Special Session · SCAN TO ASK · QR을 스캔해 질문을 등록해 주세요 · In Silico Drug Discovery Special Session · SCAN TO ASK · QR을 스캔해 질문을 등록해 주세요 · In Silico Drug Discovery Special Session · SCAN TO ASK · QR을 스캔해 질문을 등록해 주세요 · In Silico Drug Discovery Special Session · </div></div>
   <main id="stage"></main>
 </div>
 <script src="config.js?v=7"></script>
@@ -85,7 +86,7 @@ function singleHtml(s) {
   const qs = s.questions || [];
   if (s.status === 'open') {
     if (!qs.length) {
-      return nav + '<div class="s-center"><div class="s-giant">KSC 2026</div><div class="s-big">첫 질문을 등록해 주세요</div><div class="s-sub">QR 스캔 후 프로그램 선택</div></div>' + tickerHtml();
+      return nav + '<div class="s-center"><div class="s-giant">KSC 2026</div><div class="s-big">첫 질문을 등록해 주세요</div><div class="s-sub">QR 스캔 후 프로그램 선택</div></div>';
     }
     const shown = qs.slice(-8);
     const offset = qs.length - shown.length;
@@ -134,14 +135,14 @@ function overviewHtml() {
         + '<span class="t-by">' + (info.time ? '🕐 ' + esc(info.time) + ' · ' : '') + '질문 ' + qs.length + '개' + (sel ? ' · ★ 우수 질문 발표' : '') + (s.status === 'open' ? '' : ' · 마감') + '</span>'
         + '</div></li>';
     }).join('')
-    + '</ol>' + tickerHtml();
+    + '</ol>';
 }
 
 function stageHtml() {
   if (!sessions().length) {
     return '<div class="s-center"><div class="s-giant">KSC 2026</div>'
       + '<div class="s-big">QR을 스캔해 접속하세요</div>'
-      + '<div class="s-sub">SCAN TO ASK — 준비 중</div></div>' + tickerHtml();
+      + '<div class="s-sub">SCAN TO ASK — 준비 중</div></div>';
   }
   const s = sParam >= 1 ? sessions()[sParam - 1] : null;
   return s ? singleHtml(s) : overviewHtml();
