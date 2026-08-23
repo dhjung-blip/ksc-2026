@@ -160,5 +160,7 @@ main#stage{flex:1;overflow:hidden;margin-top:20px;position:relative}
 /* ---------- 대기 화면: 초대형 행사명 + 티커 ---------- */
 .s-giant{font-size:clamp(90px,13vw,190px);font-weight:800;letter-spacing:-.03em;line-height:1;background:var(--grad-blue);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:6px}
 .s-ticker{position:absolute;left:0;right:0;bottom:0;background:var(--grad-green);overflow:hidden;padding:13px 0;border-radius:12px}
+main#stage:has(.s-ticker) .t-list{max-height:calc(100% - 100px)}
+main#stage:has(.s-ticker) .s-center{height:calc(100% - 70px)}
 .s-ticker-track{display:inline-block;white-space:nowrap;font-size:15px;font-weight:800;letter-spacing:.1em;color:#fff;animation:tick 22s linear infinite}
 @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
