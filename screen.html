@@ -4,13 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스크린 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=16">
+<link rel="stylesheet" href="style.css?v=22">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="screen">
 <div class="s-wrap">
   <header class="s-head">
     <div>
+      <span class="event-badge">In Silico Drug Discovery Special Session</span>
       <div class="s-event" id="eventTitle"></div>
       <div class="s-round" id="sRound">불러오는 중…</div>
       <div class="s-speaker" id="sSpeaker"></div>
@@ -20,17 +21,18 @@
       <div class="s-url" id="urlText"></div>
     </div>
   </header>
+  <div class="s-ticker"><div class="s-ticker-track">SCAN TO ASK · QR을 스캔해 질문을 등록해 주세요 · In Silico Drug Discovery Special Session · SCAN TO ASK · QR을 스캔해 질문을 등록해 주세요 · In Silico Drug Discovery Special Session · SCAN TO ASK · QR을 스캔해 질문을 등록해 주세요 · In Silico Drug Discovery Special Session · SCAN TO ASK · QR을 스캔해 질문을 등록해 주세요 · In Silico Drug Discovery Special Session · </div></div>
   <main id="stage"></main>
 </div>
-<script src="config.js?v=6"></script>
-<script src="app.js?v=9"></script>
+<script src="config.js?v=7"></script>
+<script src="app.js?v=10"></script>
 <script>
 mountDemoBadge();
 document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
 
 // 스킨 (?skin=) — 구조는 동일, 색만 교체
 const SKINS = {
-  bp:       { qr: '#131F38' },
+  bp:       { qr: '#1B3AA6' },
   midnight: { qr: '#101A2E', vars: {'--cream':'#111A2C','--cream-deep':'#0C1424','--panel':'rgba(255,255,255,.07)','--ink':'#E9E6DC','--ink-deep':'#F4F1E8','--muted':'#97A0B5','--bronze':'#C9AE7C','--bronze-soft':'#A98F63','--line':'rgba(233,230,220,.18)','--line-strong':'rgba(233,230,220,.45)','--wash1':'rgba(255,255,255,.05)','--wash2':'rgba(201,174,124,.10)','--wash3':'rgba(120,140,190,.10)'} },
   ivory:    { qr: '#1B2540', vars: {'--cream':'#F4F2EA','--cream-deep':'#ECE8DC','--panel':'rgba(255,255,255,.68)','--ink':'#26324E','--ink-deep':'#1B2540','--muted':'#83857B','--bronze':'#2F4A86','--bronze-soft':'#6C82B5','--line':'rgba(30,42,72,.18)','--line-strong':'rgba(30,42,72,.42)','--wash1':'rgba(255,255,255,.9)','--wash2':'rgba(212,202,172,.35)','--wash3':'rgba(212,202,172,.25)'} },
   prussian: { qr: '#14315E', vars: {'--cream':'#1C3C71','--cream-deep':'#152F5B','--panel':'rgba(255,255,255,.08)','--ink':'#EDF2FA','--ink-deep':'#FFFFFF','--muted':'#9FB4D6','--bronze':'#D9C289','--bronze-soft':'#B7A26E','--line':'rgba(237,242,250,.2)','--line-strong':'rgba(237,242,250,.5)','--wash1':'rgba(255,255,255,.10)','--wash2':'rgba(120,150,200,.18)','--wash3':'rgba(120,150,200,.14)'} },
@@ -49,7 +51,7 @@ document.getElementById('urlText').textContent = baseUrl.replace(/^https?:\/\//,
   s.onload = function () {
     new QRCode(document.getElementById('qrbox'), {
       text: baseUrl, width: 172, height: 172,
-      colorDark: SKIN.qr || '#14418F', colorLight: '#ffffff',
+      colorDark: SKIN.qr || '#1B3AA6', colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.M,
     });
   };
@@ -74,13 +76,17 @@ function urlFor(sNum) {
 function navHtml() {
   return '<div class="s-nav"><a href="' + urlFor(0) + '">‹ 전체 프로그램</a></div>';
 }
+function tickerHtml() {
+  const t = 'SCAN TO ASK \u00B7 QR\uC744 \uC2A4\uCE94\uD574 \uC9C8\uBB38\uC744 \uB4F1\uB85D\uD574 \uC8FC\uC138\uC694 \u00B7 In Silico Drug Discovery Special Session \u00B7 ';
+  return '<div class="s-ticker"><div class="s-ticker-track">' + (t + t + t + t) + '</div></div>';
+}
 
 function singleHtml(s) {
   const nav = navHtml();
   const qs = s.questions || [];
   if (s.status === 'open') {
     if (!qs.length) {
-      return nav + '<div class="s-center"><div class="s-big">첫 질문을 등록해 주세요</div><div class="s-sub">SCAN TO ASK — QR 스캔 후 프로그램 선택</div></div>';
+      return nav + '<div class="s-center"><div class="s-giant">KSC 2026</div><div class="s-big">첫 질문을 등록해 주세요</div><div class="s-sub">QR 스캔 후 프로그램 선택</div></div>';
     }
     const shown = qs.slice(-8);
     const offset = qs.length - shown.length;
@@ -120,19 +126,21 @@ function overviewHtml() {
       const qs = s.questions || [];
       const sel = qs.filter(function (q) { return q.selected; }).length;
       const p = splitTitle(s.title);
+      const info = sessionInfo(i);
       return '<li class="t-item' + (sel ? ' sel' : '') + '" data-s="' + (i + 1) + '">'
-        + '<span class="t-no">P.' + String(i + 1).padStart(2, '0') + (s.status === 'open' ? '' : ' · CLOSED') + '</span>'
+        + '<span class="num-tile ' + tileClass(i) + '">' + (i + 1) + '</span>'
+        + '<div class="lineup-body">'
         + '<p class="t-q">' + esc(p.title) + '</p>'
-        + (p.speaker ? '<span class="t-sp">' + esc(p.speaker) + '</span>' : '')
-        + '<span class="t-by">질문 ' + qs.length + '개' + (sel ? ' · ★ 우수 질문 발표' : '') + '</span>'
-        + '</li>';
+        + (p.speaker ? '<span class="t-sp">' + esc(p.speaker) + (info.org ? ' · ' + esc(info.org) : '') + '</span>' : '')
+        + '<span class="t-by">' + (info.time ? '🕐 ' + esc(info.time) + ' · ' : '') + '질문 ' + qs.length + '개' + (sel ? ' · ★ 우수 질문 발표' : '') + (s.status === 'open' ? '' : ' · 마감') + '</span>'
+        + '</div></li>';
     }).join('')
     + '</ol>';
 }
 
 function stageHtml() {
   if (!sessions().length) {
-    return '<div class="s-center">'
+    return '<div class="s-center"><div class="s-giant">KSC 2026</div>'
       + '<div class="s-big">QR을 스캔해 접속하세요</div>'
       + '<div class="s-sub">SCAN TO ASK — 준비 중</div></div>';
   }
@@ -146,7 +154,9 @@ function render() {
   const p = s ? splitTitle(s.title) : null;
   document.getElementById('sRound').textContent =
     p ? p.title : (sessions().length ? ev : '곧 시작합니다');
-  document.getElementById('sSpeaker').textContent = p && p.speaker ? p.speaker : '';
+  const inf = s ? sessionInfo(sParam - 1) : {};
+  document.getElementById('sSpeaker').textContent = p && p.speaker
+    ? p.speaker + (inf.org ? ' · ' + inf.org : '') + (inf.time ? '  🕐 ' + inf.time : '') : '';
   document.getElementById('eventTitle').textContent = s ? ev : '';
   const k = sParam + '|' + JSON.stringify(state);
   if (k === key) return;
