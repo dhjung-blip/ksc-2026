@@ -1,39 +1,18 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>시안 비교 — KSC 2026 Q&A</title>
-<style>
-body{margin:0;font-family:-apple-system,"Apple SD Gothic Neo",sans-serif;background:#232326;color:#fff;padding:14px}
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>팔레트 비교 — KSC 2026</title>
+<style>body{margin:0;font-family:-apple-system,"Apple SD Gothic Neo",sans-serif;background:#232326;color:#fff;padding:14px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1720px;margin:0 auto}
-h2{font-size:14px;font-weight:700;margin:0 0 7px}
-h2 span{color:#9a9aa3;font-weight:500;font-size:12px;margin-left:6px}
+h2{font-size:13.5px;font-weight:700;margin:0 0 7px}
+h2 span{color:#9a9aa3;font-weight:500;font-size:11.5px;margin-left:6px}
 .frame{width:100%;aspect-ratio:16/10;position:relative;overflow:hidden;border-radius:8px;background:#000;border:1px solid #3a3a40}
 .frame iframe{position:absolute;top:0;left:0;width:1280px;height:800px;border:0;transform-origin:0 0}
-.links{margin-top:5px;font-size:12px}
-.links a{color:#8ab4ff;text-decoration:none;margin-right:10px}
-@media (max-width:1000px){.grid{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
+.links{margin-top:5px;font-size:12px}.links a{color:#8ab4ff;text-decoration:none;margin-right:10px}
+@media (max-width:1000px){.grid{grid-template-columns:1fr}}</style></head><body>
 <div class="grid" id="g"></div>
 <script>
-const V = [
-  ['', 'A. 포슬린 블루', '현재 확정안 · 라이트 쿨'],
-  ['?skin=ivory', 'B. 아이보리 네이비', '웜 페이퍼 + 네이비 잉크'],
-  ['?skin=midnight', 'C. 미드나이트 골드', '다크 세리프 + 샴페인 골드'],
-  ['?skin=prussian', 'D. 프러시안 블루', 'KSC 딥블루 + 아이스/골드'],
-];
-document.getElementById('g').innerHTML = V.map(function (v) {
-  return '<div><h2>' + v[1] + '<span>' + v[2] + '</span></h2>'
-    + '<div class="frame"><iframe src="screen.html' + v[0] + '"></iframe></div>'
-    + '<div class="links"><a href="screen.html' + v[0] + '" target="_blank">크게 보기</a></div></div>';
-}).join('');
-function fit(){document.querySelectorAll('.frame').forEach(function(f){
-  var s=f.clientWidth/1280;var i=f.querySelector('iframe');
-  i.style.transform='scale('+s+')';i.style.height=(f.clientHeight/s)+'px';});}
+const V=[['','현행','포스터 원색 (쨍한 로열블루+그린)'],['?skin=p1','P1 포스터 정제','같은 계열, 채도 정돈'],['?skin=p2','P2 프로 네이비','슬레이트 네이비+블루, 그린 제거'],['?skin=p3','P3 블루+틸','과학적 신뢰 조합']];
+document.getElementById('g').innerHTML=V.map(function(v){return '<div><h2>'+v[1]+'<span>'+v[2]+'</span></h2><div class="frame"><iframe src="screen.html?demo=1&s=1'+(v[0]?'&'+v[0].slice(1):'')+'"></iframe></div><div class="links"><a href="screen.html?demo=1'+(v[0]?'&'+v[0].slice(1):'')+'" target="_blank">현황판</a><a href="screen.html?demo=1&s=1'+(v[0]?'&'+v[0].slice(1):'')+'" target="_blank">발표 화면</a></div></div>';}).join('');
+function fit(){document.querySelectorAll('.frame').forEach(function(f){var s=f.clientWidth/1280;var i=f.querySelector('iframe');i.style.transform='scale('+s+')';i.style.height=(f.clientHeight/s)+'px';});}
 window.addEventListener('resize',fit);window.addEventListener('load',fit);fit();
-</script>
-</body>
-</html>
+</script></body></html>

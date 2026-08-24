@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스크린 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=28">
+<link rel="stylesheet" href="style.css?v=29">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="screen">
@@ -32,10 +32,10 @@ document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026
 
 // 스킨 (?skin=) — 구조는 동일, 색만 교체
 const SKINS = {
-  bp:       { qr: '#1B3AA6' },
-  midnight: { qr: '#101A2E', vars: {'--cream':'#111A2C','--cream-deep':'#0C1424','--panel':'rgba(255,255,255,.07)','--ink':'#E9E6DC','--ink-deep':'#F4F1E8','--muted':'#97A0B5','--bronze':'#C9AE7C','--bronze-soft':'#A98F63','--line':'rgba(233,230,220,.18)','--line-strong':'rgba(233,230,220,.45)','--wash1':'rgba(255,255,255,.05)','--wash2':'rgba(201,174,124,.10)','--wash3':'rgba(120,140,190,.10)'} },
-  ivory:    { qr: '#1B2540', vars: {'--cream':'#F4F2EA','--cream-deep':'#ECE8DC','--panel':'rgba(255,255,255,.68)','--ink':'#26324E','--ink-deep':'#1B2540','--muted':'#83857B','--bronze':'#2F4A86','--bronze-soft':'#6C82B5','--line':'rgba(30,42,72,.18)','--line-strong':'rgba(30,42,72,.42)','--wash1':'rgba(255,255,255,.9)','--wash2':'rgba(212,202,172,.35)','--wash3':'rgba(212,202,172,.25)'} },
-  prussian: { qr: '#14315E', vars: {'--cream':'#1C3C71','--cream-deep':'#152F5B','--panel':'rgba(255,255,255,.08)','--ink':'#EDF2FA','--ink-deep':'#FFFFFF','--muted':'#9FB4D6','--bronze':'#D9C289','--bronze-soft':'#B7A26E','--line':'rgba(237,242,250,.2)','--line-strong':'rgba(237,242,250,.5)','--wash1':'rgba(255,255,255,.10)','--wash2':'rgba(120,150,200,.18)','--wash3':'rgba(120,150,200,.14)'} },
+  bp: { qr: '#1B3AA6' },
+  p1: { qr: '#183391', vars: {'--b1':'#183391','--b2':'#224BD3','--g1':'#0B7E5F','--g2':'#11BB8D','--blue':'#1D3EAF','--blue-deep':'#132A76','--blue-soft':'#F3F5FC'} },
+  p2: { qr: '#263140', vars: {'--b1':'#344256','--b2':'#4D6280','--g1':'#0483C8','--g2':'#45B8F7','--blue':'#0483C8','--blue-deep':'#035887','--blue-soft':'#F1F9FD','--ink':'#263140'} },
+  p3: { qr: '#036CA5', vars: {'--b1':'#036CA5','--b2':'#049DF0','--g1':'#13958B','--g2':'#1CD9CA','--blue':'#0483C8','--blue-deep':'#036CA5','--blue-soft':'#F1F9FD','--ink':'#12202E'} },
 };
 const skinKey = new URLSearchParams(location.search).get('skin') || 'bp';
 const SKIN = SKINS[skinKey] || SKINS.bp;

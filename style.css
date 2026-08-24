@@ -9,8 +9,9 @@
 }
 :root{
   --ink:#0D1230; --blue:#1E43C8; --blue-deep:#16309A; --blue-soft:#EAF0FF;
-  --grad-blue:linear-gradient(120deg,#1D3FB2 0%,#3F7CE8 100%);
-  --grad-green:linear-gradient(120deg,#0FA57C 0%,#63C24C 100%);
+  --b1:#1D3FB2; --b2:#3F7CE8; --g1:#0FA57C; --g2:#63C24C;
+  --grad-blue:linear-gradient(120deg,var(--b1) 0%,var(--b2) 100%);
+  --grad-green:linear-gradient(120deg,var(--g1) 0%,var(--g2) 100%);
   --muted:#5A6480; --line:#0D1230; --hair:#D9E0F0; --bg:#FFFFFF;
   --sans:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",Roboto,sans-serif;
 }
