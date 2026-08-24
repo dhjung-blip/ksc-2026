@@ -141,7 +141,7 @@ function startPolling(fn, ms) {
 }
 
 function sessionInfo(i) { return (CFG.SESSION_INFO || [])[i] || {}; }
-function tileClass(i) { return i < 4 ? 'nt-blue' : (i === 4 ? 'nt-teal' : 'nt-green'); }
+function tileClass(i) { return 'nt-' + Math.min(i + 1, 6); }
 
 // "제목 -연사 직함-" 형태에서 제목과 연사를 분리
 function splitTitle(t) {
