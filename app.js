@@ -140,9 +140,6 @@ function startPolling(fn, ms) {
   return function () { stopped = true; };
 }
 
-function sessionInfo(i) { return (CFG.SESSION_INFO || [])[i] || {}; }
-function tileClass(i) { return i < 4 ? 'nt-blue' : (i === 4 ? 'nt-teal' : 'nt-green'); }
-
 // "제목 -연사 직함-" 형태에서 제목과 연사를 분리
 function splitTitle(t) {
   const m = /^(.*?)\s*-\s*([^-]{1,40}?)\s*-\s*$/.exec(t || '');
