@@ -127,10 +127,10 @@ main#stage{flex:1;overflow:hidden;padding:26px 48px 30px;position:relative}
 .t-winhead{font-size:clamp(24px,2.4vw,36px);font-weight:900;letter-spacing:-.01em;color:var(--ink);text-align:left;margin:1vh 0 24px;display:flex;align-items:baseline;gap:14px}
 .t-winsub{font-size:12px;font-weight:800;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
 .t-figs{display:flex;gap:34px;justify-content:flex-start;flex-wrap:wrap;max-width:1400px}
-.t-fig{flex:1;min-width:360px;max-width:600px;background:var(--grad-blue);border:none;border-radius:14px;padding:28px 30px 24px;position:relative;animation:tin .45s ease;text-align:left}
-.t-fig figcaption{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:2px solid rgba(255,255,255,.85);border-radius:50%;font-size:15px;font-weight:900;color:#fff;margin-bottom:16px}
-.t-fig p{margin:0;font-size:24px;font-weight:800;line-height:1.48;color:#fff;word-break:break-word}
-.t-fig cite{font-style:normal;font-size:13.5px;color:rgba(255,255,255,.8);display:block;margin-top:16px;font-weight:700}
+.t-fig{flex:1;min-width:360px;max-width:600px;background:var(--blue-soft);border:none;border-radius:14px;padding:28px 30px 24px;position:relative;animation:tin .45s ease;text-align:left}
+.t-fig figcaption{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:2px solid var(--blue);border-radius:50%;font-size:15px;font-weight:900;color:var(--blue);margin-bottom:16px}
+.t-fig p{margin:0;font-size:24px;font-weight:800;line-height:1.48;color:var(--ink);word-break:break-word}
+.t-fig cite{font-style:normal;font-size:13.5px;color:var(--muted);display:block;margin-top:16px;font-weight:700}
 .t-stamp{display:none}
 .s-center{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px}
 .s-giant{font-size:clamp(100px,15vw,230px);font-weight:900;letter-spacing:-.04em;line-height:.95;background:var(--grad-blue);-webkit-background-clip:text;background-clip:text;color:transparent;text-transform:uppercase}
