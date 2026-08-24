@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스크린 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=26">
+<link rel="stylesheet" href="style.css?v=27">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="screen">
@@ -107,14 +107,12 @@ function singleHtml(s) {
   if (!winners.length) {
     return nav + '<div class="s-center"><div class="s-big">우수 질문 선정 중</div><div class="s-sub">REVIEW IN PROGRESS<span class="dots"></span></div></div>';
   }
-  const figs = ['FIG.A', 'FIG.B'];
-  return nav + '<div class="t-winhead">— SELECTED QUESTIONS —</div>'
+  return nav + '<div class="t-winhead">우수 질문<span class="t-winsub">SELECTED QUESTIONS</span></div>'
     + '<div class="t-figs">'
     + winners.map(function (q, i) {
-      return '<figure class="t-fig"><figcaption>' + (figs[i] || 'FIG.' + (i + 1)) + '</figcaption>'
+      return '<figure class="t-fig"><figcaption>' + (i + 1) + '</figcaption>'
         + '<p>' + esc(q.content) + '</p>'
-        + '<cite>— ' + esc(q.author || '익명') + '</cite>'
-        + '<span class="t-stamp">SELECTED ✓</span></figure>';
+        + '<cite>— ' + esc(q.author || '익명') + '</cite></figure>';
     }).join('')
     + '</div>';
 }
