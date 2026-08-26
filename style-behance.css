@@ -166,8 +166,17 @@ main#stage>*{position:relative;z-index:1}
 @media (max-width:1100px), (max-height:720px){
   body.screen{overflow:auto}
   .s-wrap{height:auto;min-height:100vh}
-  main#stage{overflow:visible}
+  main#stage{overflow:visible;padding:22px 24px 26px}
   .t-list,.t-list.ov{max-height:none;height:auto;overflow:visible}
-  .s-center{height:auto;min-height:58vh;padding:36px 0}
-  main#stage::after{position:fixed;z-index:0}
+  .s-center{height:auto;min-height:52vh;padding:32px 0}
+  main#stage::after{display:none}
+  .s-head{flex-wrap:wrap;align-items:flex-start;gap:18px;padding:24px 24px 22px}
+  .s-round{font-size:clamp(26px,4.6vw,44px)}
+  .s-qr{padding:10px 10px 8px;border-radius:14px}
+  #qrbox img,#qrbox canvas{width:116px;height:116px}
+  .s-giant{font-size:clamp(44px,9vw,110px)}
+  .s-foot{flex-wrap:wrap;gap:6px;padding:11px 24px;font-size:12px}
+  .t-winhead{font-size:clamp(19px,3vw,26px)}
+  .t-fig{min-width:0;width:100%;padding:20px 20px 16px}
+  .t-fig p{font-size:19px}
 }
