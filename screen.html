@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스크린 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=36">
+<link rel="stylesheet" href="style.css?v=37">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="screen">
@@ -172,7 +172,23 @@ document.getElementById('stage').addEventListener('click', function (e) {
   if (item) location.href = urlFor(Number(item.dataset.s));
 });
 
-startPolling(async function () { state = await store.getState(); render(); }, 2000);
+function checkFit() {
+  const b = document.body;
+  const small = matchMedia('(max-width:1100px),(max-height:720px)').matches;
+  if (small) { b.classList.add('scr-scroll'); return; }
+  if (b.classList.contains('scr-scroll')) {
+    if (document.documentElement.scrollHeight <= innerHeight + 2) b.classList.remove('scr-scroll');
+  } else {
+    const list = document.querySelector('.t-list');
+    const st = document.getElementById('stage');
+    if ((list && list.scrollHeight > list.clientHeight + 2) || st.scrollHeight > st.clientHeight + 2) {
+      b.classList.add('scr-scroll');
+    }
+  }
+}
+window.addEventListener('resize', checkFit);
+
+startPolling(async function () { state = await store.getState(); render(); checkFit(); }, 2000);
 </script>
 </body>
 </html>

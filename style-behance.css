@@ -180,3 +180,11 @@ main#stage>*{position:relative;z-index:1}
   .t-fig{min-width:0;width:100%;padding:20px 20px 16px}
   .t-fig p{font-size:19px}
 }
+
+/* ---------- 내용이 넘치면(JS 감지) 스크롤 해제 — 애매한 창 크기 대응 ---------- */
+body.screen.scr-scroll{overflow:auto}
+body.scr-scroll .s-wrap{height:auto;min-height:100vh}
+body.scr-scroll main#stage{overflow:visible}
+body.scr-scroll .t-list,body.scr-scroll .t-list.ov{max-height:none;height:auto;overflow:visible}
+body.scr-scroll .s-center{height:auto;min-height:52vh;padding:32px 0}
+body.scr-scroll main#stage::after{display:none}
