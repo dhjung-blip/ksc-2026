@@ -134,7 +134,11 @@ main#stage>*{position:relative;z-index:1}
 .t-q{margin:0;font-size:21px;font-weight:800;line-height:1.4;color:var(--ink);word-break:break-word}
 .t-by{font-size:12.5px;color:var(--muted);display:block;margin-top:8px;font-weight:700;letter-spacing:.04em}
 .t-sp{display:block;font-size:14px;font-weight:800;color:var(--ink);margin-top:7px}
-.t-item.sel .t-no::after{content:' ★';color:#0FA57C}
+.t-lh{grid-column:1/-1;display:flex;align-items:baseline;gap:12px;margin:4px 0 0;font-size:clamp(20px,1.7vw,26px);font-weight:900;letter-spacing:-.01em;color:var(--ink)}
+.t-lh.sub{font-size:15px;color:var(--muted);margin-top:14px}
+.t-item.win{background:var(--blue-soft);border-color:transparent}
+.t-item.win .t-q{font-size:23px}
+.t-item.win::after{content:'SELECTED';position:absolute;top:14px;right:16px;font-size:11px;font-weight:900;letter-spacing:.14em;color:#fff;background:var(--grad-green);padding:5px 11px;border-radius:9px 9px 9px 3px}
 .t-item[data-s]{cursor:pointer;transition:border-color .12s ease,transform .12s ease;display:flex;gap:18px;align-items:center;border-radius:7px 22px 22px 22px}
 .t-item[data-s]:hover{border-color:var(--blue);transform:translateY(-1px)}
 .t-item[data-s] .num-tile{width:58px;height:58px;font-size:26px;border-radius:18px 18px 18px 6px}

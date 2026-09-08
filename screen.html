@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스크린 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=39">
+<link rel="stylesheet" href="style.css?v=40">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="screen">
@@ -92,17 +92,24 @@ function singleHtml(s) {
     if (!qs.length) {
       return nav + '<div class="s-center"><div class="s-giant">KSC 2026</div><div class="s-big">첫 질문을 등록해 주세요</div><div class="s-sub">QR 스캔 후 프로그램 선택</div></div>';
     }
-    const shown = qs.slice().reverse(); // 최신 질문이 맨 위, 전체는 목록 안에서 스크롤
+    // 선정된 질문은 맨 위에 고정, 나머지는 최신순 — 전체는 목록 안에서 스크롤
+    const winners = qs.filter(function (q) { return q.selected; });
+    const rest = qs.filter(function (q) { return !q.selected; }).reverse();
+    function item(q, extra) {
+      return '<li class="t-item' + (prevIds.has(q.id) ? '' : ' fresh') + extra + '" data-id="' + q.id + '">'
+        + '<span class="t-no">' + qno(qs.indexOf(q)) + '</span>'
+        + '<p class="t-q">' + esc(q.content) + '</p>'
+        + '<span class="t-by">' + esc(q.author || '익명') + '</span>'
+        + '</li>';
+    }
     return nav + '<div class="s-count">REGISTERED <b>' + pad3(qs.length) + '</b></div>'
       + '<ol class="t-list" id="qscroll">'
-      + shown.map(function (q, i) {
-        const idx = qs.length - 1 - i;
-        return '<li class="t-item' + (prevIds.has(q.id) ? '' : ' fresh') + (q.selected ? ' sel' : '') + '" data-id="' + q.id + '">'
-          + '<span class="t-no">' + qno(idx) + '</span>'
-          + '<p class="t-q">' + esc(q.content) + '</p>'
-          + '<span class="t-by">' + esc(q.author || '익명') + '</span>'
-          + '</li>';
-      }).join('')
+      + (winners.length
+        ? '<li class="t-lh">우수 질문<span class="t-winsub">SELECTED QUESTIONS</span></li>'
+          + winners.map(function (q) { return item(q, ' win'); }).join('')
+          + '<li class="t-lh sub">전체 질문<span class="t-winsub">ALL QUESTIONS</span></li>'
+        : '')
+      + rest.map(function (q) { return item(q, ''); }).join('')
       + '</ol>';
   }
   const winners = qs.filter(function (q) { return q.selected; });

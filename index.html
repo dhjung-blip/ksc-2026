@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>질문 등록 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=39">
+<link rel="stylesheet" href="style.css?v=40">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body>
@@ -75,8 +75,13 @@ function listBody(s) {
   const qs = s.questions || [];
   if (s.status === 'open') {
     if (!qs.length) return '<div class="card center muted">아직 등록된 질문이 없습니다.<br>첫 질문을 남겨보세요!</div>';
-    return '<div class="list-head">등록된 질문 <b>' + qs.length + '</b>개</div>'
-      + qs.slice().reverse().map(function (q) { return qCard(q, s.id); }).join('');
+    const picked = qs.filter(function (q) { return q.selected; });
+    const others = qs.filter(function (q) { return !q.selected; });
+    return (picked.length
+        ? '<h2 class="section-title">🏆 우수 질문</h2>' + picked.map(function (q) { return qCard(q, s.id); }).join('')
+        : '')
+      + '<div class="list-head">등록된 질문 <b>' + qs.length + '</b>개</div>'
+      + others.slice().reverse().map(function (q) { return qCard(q, s.id); }).join('');
   }
   const winners = qs.filter(function (q) { return q.selected; });
   if (!winners.length) {
