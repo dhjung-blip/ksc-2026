@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스크린 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=38">
+<link rel="stylesheet" href="style.css?v=39">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="screen">
@@ -92,14 +92,12 @@ function singleHtml(s) {
     if (!qs.length) {
       return nav + '<div class="s-center"><div class="s-giant">KSC 2026</div><div class="s-big">첫 질문을 등록해 주세요</div><div class="s-sub">QR 스캔 후 프로그램 선택</div></div>';
     }
-    const shown = qs.slice(-8);
-    const offset = qs.length - shown.length;
-    return nav + '<div class="s-count">REGISTERED <b>' + pad3(qs.length) + '</b>'
-      + (offset ? ' · 최근 8개 표시' : '') + '</div>'
-      + '<ol class="t-list">'
+    const shown = qs.slice().reverse(); // 최신 질문이 맨 위, 전체는 목록 안에서 스크롤
+    return nav + '<div class="s-count">REGISTERED <b>' + pad3(qs.length) + '</b></div>'
+      + '<ol class="t-list" id="qscroll">'
       + shown.map(function (q, i) {
-        const idx = offset + i;
-        return '<li class="t-item' + (prevIds.has(q.id) ? '' : ' fresh') + (q.selected ? ' sel' : '') + '">'
+        const idx = qs.length - 1 - i;
+        return '<li class="t-item' + (prevIds.has(q.id) ? '' : ' fresh') + (q.selected ? ' sel' : '') + '" data-id="' + q.id + '">'
           + '<span class="t-no">' + qno(idx) + '</span>'
           + '<p class="t-q">' + esc(q.content) + '</p>'
           + '<span class="t-by">' + esc(q.author || '익명') + '</span>'
@@ -150,6 +148,43 @@ function stageHtml() {
   return s ? singleHtml(s) : overviewHtml();
 }
 
+// 목록 스크롤: 새 질문이 와도 보고 있던 위치를 유지하고, 아래에 더 있으면 페이드 표시
+function scrollAnchor() {
+  const list = document.getElementById('qscroll');
+  if (!list || list.scrollTop <= 0) return null;
+  const items = list.querySelectorAll('.t-item[data-id]');
+  for (let i = 0; i < items.length; i++) {
+    const li = items[i];
+    if (li.offsetTop + li.offsetHeight > list.scrollTop) return { id: li.dataset.id, off: li.offsetTop - list.scrollTop };
+  }
+  return null;
+}
+function restoreAnchor(a) {
+  const list = document.getElementById('qscroll');
+  if (!list || !a) return;
+  const li = list.querySelector('.t-item[data-id="' + a.id + '"]');
+  if (li) list.scrollTop = li.offsetTop - a.off;
+}
+function updateMore() {
+  const list = document.getElementById('qscroll');
+  if (list) list.classList.toggle('more', list.scrollTop + list.clientHeight < list.scrollHeight - 4);
+}
+document.getElementById('stage').addEventListener('scroll', updateMore, true);
+window.addEventListener('resize', updateMore);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateMore);
+// 운영 노트북 키보드로도 스크롤 (↑↓ / PageUp·Down / Space / Home·End)
+window.addEventListener('keydown', function (e) {
+  const list = document.getElementById('qscroll');
+  if (!list || list.scrollHeight <= list.clientHeight + 1 || e.altKey || e.ctrlKey || e.metaKey) return;
+  const page = Math.round(list.clientHeight * 0.85);
+  const by = { ArrowDown: 140, ArrowUp: -140, PageDown: page, PageUp: -page, ' ': e.shiftKey ? -page : page }[e.key];
+  if (by != null) list.scrollBy({ top: by, behavior: 'smooth' });
+  else if (e.key === 'Home') list.scrollTo({ top: 0, behavior: 'smooth' });
+  else if (e.key === 'End') list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
+  else return;
+  e.preventDefault();
+});
+
 function render() {
   const s = sParam >= 1 ? sessions()[sParam - 1] : null;
   const ev = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
@@ -161,9 +196,13 @@ function render() {
     ? p.speaker + (inf.org ? ' · ' + inf.org : '') + (inf.time ? '  🕐 ' + inf.time : '') : '';
   document.getElementById('eventTitle').textContent = s ? ev : '';
   const k = sParam + '|' + JSON.stringify(state);
-  if (k === key) return;
+  if (k === key) { updateMore(); return; }
   key = k;
+  const anchor = scrollAnchor();
   document.getElementById('stage').innerHTML = stageHtml();
+  restoreAnchor(anchor);
+  updateMore();
+  setTimeout(updateMore, 500); // 카드 등장 애니메이션(0.4s)이 끝난 뒤 다시 측정
   sessions().forEach(function (ss) { (ss.questions || []).forEach(function (q) { prevIds.add(q.id); }); });
 }
 
