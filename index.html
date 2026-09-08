@@ -19,8 +19,9 @@ mountDemoBadge();
 document.getElementById('eventTitle').textContent = CFG.EVENT_TITLE || 'KSC 2026 Q&A';
 
 const app = document.getElementById('app');
-const nameKey = 'qws-name', phoneKey = 'qws-phone', mineKey = 'qws-mine', selKey = 'qws-session';
+const nameKey = 'qws-name', phoneKey = 'qws-phone', mineKey = 'qws-mine';
 let state = null, viewKey = '';
+localStorage.removeItem('qws-session');
 
 function myIds(rid) {
   try { return (JSON.parse(localStorage.getItem(mineKey)) || {})[rid] || []; } catch (e) { return []; }
@@ -32,9 +33,15 @@ function addMine(rid, qid) {
   localStorage.setItem(mineKey, JSON.stringify(m));
 }
 function sessions() { return (state && state.sessions) || []; }
+// 선택한 프로그램은 URL 해시(#3)로만 유지 — QR 주소(/)로 들어오면 항상 선택 페이지
 function currentSession() {
-  const id = Number(localStorage.getItem(selKey));
+  const m = /^#(\d+)$/.exec(location.hash);
+  const id = m ? Number(m[1]) : 0;
   return sessions().find(function (s) { return s.id === id; }) || null;
+}
+function goPicker() {
+  history.replaceState(null, '', location.pathname + location.search);
+  viewKey = ''; render();
 }
 
 function qCard(q, rid) {
@@ -126,11 +133,11 @@ function render() {
   if (key !== viewKey) {
     viewKey = key;
     app.innerHTML = sessionHtml(cur);
+    window.scrollTo(0, 0);
     if (cur.status === 'open') document.getElementById('submitBtn').addEventListener('click', submit);
     document.getElementById('backSel').addEventListener('click', function (e) {
       e.preventDefault();
-      localStorage.removeItem(selKey);
-      viewKey = ''; render();
+      goPicker();
     });
   } else {
     const el = document.getElementById('qlist');
@@ -142,9 +149,10 @@ function render() {
 app.addEventListener('click', function (e) {
   const card = e.target.closest('.sess-pick');
   if (!card) return;
-  localStorage.setItem(selKey, card.dataset.sid);
+  location.hash = '#' + card.dataset.sid;
   viewKey = ''; render();
 });
+window.addEventListener('hashchange', function () { viewKey = ''; render(); });
 
 async function submit() {
   const cur = currentSession();
