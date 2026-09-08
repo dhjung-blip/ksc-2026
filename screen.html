@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스크린 · KSC 2026 Q&A</title>
-<link rel="stylesheet" href="style.css?v=40">
+<link rel="stylesheet" href="style.css?v=41">
 <script>(function(){var t=new URLSearchParams(location.search).get("theme");if(t&&/^[a-z]+$/.test(t)){document.querySelector("link[rel=stylesheet]").href="style-"+t+".css?v=1";}})();</script>
 </head>
 <body class="screen">
@@ -117,9 +117,11 @@ function singleHtml(s) {
     return nav + '<div class="s-center"><div class="s-big">우수 질문 선정 중</div><div class="s-sub">REVIEW IN PROGRESS<span class="dots"></span></div></div>';
   }
   return nav + '<div class="t-winhead">우수 질문<span class="t-winsub">SELECTED QUESTIONS</span></div>'
-    + '<div class="t-figs">'
+    + '<div class="t-figs" id="figscroll">'
     + winners.map(function (q, i) {
-      return '<figure class="t-fig"><figcaption>' + (i + 1) + '</figcaption>'
+      const len = (q.content || '').length; // 긴 질문은 카드 폭을 넓히고 글자를 줄여 화면 안에 맞춤
+      const cls = len > 320 ? ' xlong' : (len > 160 ? ' long' : '');
+      return '<figure class="t-fig' + cls + '"><figcaption>' + (i + 1) + '</figcaption>'
         + '<p>' + esc(q.content) + '</p>'
         + '<cite>— ' + esc(q.author || '익명') + '</cite></figure>';
     }).join('')
@@ -172,16 +174,17 @@ function restoreAnchor(a) {
   const li = list.querySelector('.t-item[data-id="' + a.id + '"]');
   if (li) list.scrollTop = li.offsetTop - a.off;
 }
+function scrollBox() { return document.getElementById('qscroll') || document.getElementById('figscroll'); }
 function updateMore() {
-  const list = document.getElementById('qscroll');
-  if (list) list.classList.toggle('more', list.scrollTop + list.clientHeight < list.scrollHeight - 4);
+  const box = scrollBox();
+  if (box) box.classList.toggle('more', box.scrollTop + box.clientHeight < box.scrollHeight - 4);
 }
 document.getElementById('stage').addEventListener('scroll', updateMore, true);
 window.addEventListener('resize', updateMore);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateMore);
 // 운영 노트북 키보드로도 스크롤 (↑↓ / PageUp·Down / Space / Home·End)
 window.addEventListener('keydown', function (e) {
-  const list = document.getElementById('qscroll');
+  const list = scrollBox();
   if (!list || list.scrollHeight <= list.clientHeight + 1 || e.altKey || e.ctrlKey || e.metaKey) return;
   const page = Math.round(list.clientHeight * 0.85);
   const by = { ArrowDown: 140, ArrowUp: -140, PageDown: page, PageUp: -page, ' ': e.shiftKey ? -page : page }[e.key];
